@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "active_learning_de"
+version = "0.1.0"
+description = "One class classification with uncertainty for active learning"
+authors = ["bela127 <bhb127@outlook.de>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = ">=3.8,<3.10"
+distribution-data-generation = {git = "https://github.com/bela127/distribution_data_generation.git"}
+active-learning-ts = {git = "https://github.com/bela127/active_learning_ts.git"}
+libclang = "<12.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.2.5"
+mypy = "^0.910"
+black = "^21.6b0"
+flake8 = "^4.0.1"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
