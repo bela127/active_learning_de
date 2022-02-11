@@ -17,10 +17,10 @@ class DependencyKnowledgeTask(KnowledgeDiscoveryTask):
         xs = self.sampler.sample(num_queries)
         ys = self.surrogate_model.query(xs)
 
-        r,p = pearsonr(xs, ys)
+        r, p = pearsonr(xs, ys)
         self.global_uncertainty = p
 
-        return r
+        return r, p
 
 
     def uncertainty(self, points: tf.Tensor) -> tf.Tensor:

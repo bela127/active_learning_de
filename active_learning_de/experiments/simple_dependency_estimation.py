@@ -13,33 +13,19 @@ from active_learning_ts.instance_properties.costs.constant_instance_cost import 
 from active_learning_ts.instance_properties.objectives.constant_instance_objective import (
     ConstantInstanceObjective,
 )
-from active_learning_ts.knowledge_discovery.extreme_point.maxima_knowledge_task import (
-    MaximaKnowledgeDiscoveryTask,
-)
 from active_learning_ts.pools.retrievement_strategies.exact_retrievement import (
     ExactRetrievement,
-)
-from active_learning_ts.query_selection.query_optimizers.max_entropy_query_optimizer import (
-    MaximumEntropyQueryOptimizer,
 )
 from active_learning_ts.query_selection.query_optimizers.maximum_query_optimizer import MaximumQueryOptimizer
 from active_learning_ts.query_selection.query_samplers.no_query_sampler import NoQuerySampler
 from active_learning_ts.query_selection.query_samplers.random_query_sampler import (
     RandomContinuousQuerySampler,
 )
-from active_learning_ts.query_selection.selection_criterias.composite_selection_criteria import (
-    CompositeSelectionCriteria,
-)
-from active_learning_ts.query_selection.selection_criterias.explore_selection_criteria import (
-    ExploreSelectionCriteria,
-)
 from active_learning_ts.query_selection.selection_criterias.knowledge_uncertainty_selection_criteria import (
     KnowledgeUncertaintySelectionCriteria,
 )
 from active_learning_ts.surrogate_models.no_surrogate_model import NoSurrogateModel
-from active_learning_ts.training.training_strategies.direct_training_strategy import (
-    DirectTrainingStrategy,
-)
+
 from active_learning_ts.training.training_strategies.no_training_strategy import NoTrainingStrategy
 
 
@@ -81,6 +67,10 @@ from distribution_data_generation.data_sources.sine_data_source import SineDataS
 from distribution_data_generation.data_sources.star_data_source import StarDataSource
 from distribution_data_generation.data_sources.z_data_source import ZDataSource
 
+from active_learning_de.knowledge_discovery.dependency_knowledge_task import DependencyKnowledgeTask
+
+from active_learning_de.evaluator.simple_result_evaluator import SimpleResultEvaluator
+
 data_sources = [
     ChaoticDataSource,
     CrossDataSource,
@@ -106,8 +96,13 @@ algorithms = []
 dynamic_blueprints = []
 
 def create_blueprint(data_source, algorithm):
-    #TODO
-    return Blueprint
+    org_init = Simple_Dependency_Estimation.__init__
+    def init(self):
+        org_init(self)
+        self.data_source = data_source()
+    Simple_Dependency_Estimation.__init__ = init
+    
+    return Simple_Dependency_Estimation
 
 for data_source in data_sources:
     for algorithm in algorithms:
@@ -121,9 +116,7 @@ class Simple_Dependency_Estimation(Blueprint):
     def __init__(self):
         self.learning_steps = 10
 
-        self.data_source = MultiGausianDataSource(
-            in_dim=2, out_dim=1, min_x=-5, max_x=5
-        )
+        self.data_source = CrossDataSource(1)
         self.retrievement_strategy = ExactRetrievement()
         self.interpolation_strategy = FlatMapInterpolation()
 
@@ -136,11 +129,11 @@ class Simple_Dependency_Estimation(Blueprint):
         self.training_strategy = NoTrainingStrategy()
 
         self.selection_criteria = KnowledgeUncertaintySelectionCriteria()
-        self.surrogate_sampler = NoQuerySampler()
+        self.surrogate_sampler = RandomContinuousQuerySampler()
         self.query_optimizer = MaximumQueryOptimizer(num_tries=100)
 
         self.num_knowledge_discovery_queries = 1000
         self.knowledge_discovery_sampler = RandomContinuousQuerySampler()
-        self.knowledge_discovery_task = MaximaKnowledgeDiscoveryTask()
+        self.knowledge_discovery_task = DependencyKnowledgeTask()
 
-        self.evaluation_metrics = [AvgRoundTimeEvaluator()]
+        self.evaluation_metrics = [AvgRoundTimeEvaluator(), SimpleResultEvaluator()]

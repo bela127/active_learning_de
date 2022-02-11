@@ -3,7 +3,7 @@ from active_learning_ts.experiments.experiment_runner import ExperimentRunner
 import tensorflow as tf
 
 
-er = ExperimentRunner([Simple_Dependency_Estimation])
+er = ExperimentRunner([Simple_Dependency_Estimation], log=True)
 er.run()
 
 er = ExperimentRunner(dynamic_blueprints)
