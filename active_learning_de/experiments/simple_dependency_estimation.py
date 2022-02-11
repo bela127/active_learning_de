@@ -16,11 +16,14 @@ from active_learning_ts.instance_properties.objectives.constant_instance_objecti
 from active_learning_ts.pools.retrievement_strategies.exact_retrievement import (
     ExactRetrievement,
 )
+from active_learning_ts.query_selection.query_optimizers.no_query_optimizer import NoQueryOptimizer
 from active_learning_ts.query_selection.query_optimizers.maximum_query_optimizer import MaximumQueryOptimizer
+
 from active_learning_ts.query_selection.query_samplers.no_query_sampler import NoQuerySampler
 from active_learning_ts.query_selection.query_samplers.random_query_sampler import (
     RandomContinuousQuerySampler,
 )
+from active_learning_ts.query_selection.selection_criterias.no_selection_criteria import NoSelectionCriteria
 from active_learning_ts.query_selection.selection_criterias.knowledge_uncertainty_selection_criteria import (
     KnowledgeUncertaintySelectionCriteria,
 )
@@ -111,12 +114,12 @@ for data_source in data_sources:
 
 
 class Simple_Dependency_Estimation(Blueprint):
-    repeat = 2
+    repeat = 1
 
     def __init__(self):
-        self.learning_steps = 10
+        self.learning_steps = 1000
 
-        self.data_source = CrossDataSource(1)
+        self.data_source = SineDataSource(1)
         self.retrievement_strategy = ExactRetrievement()
         self.interpolation_strategy = FlatMapInterpolation()
 
@@ -128,11 +131,11 @@ class Simple_Dependency_Estimation(Blueprint):
         self.surrogate_model = NoSurrogateModel()
         self.training_strategy = NoTrainingStrategy()
 
-        self.selection_criteria = KnowledgeUncertaintySelectionCriteria()
+        self.selection_criteria = NoSelectionCriteria()
         self.surrogate_sampler = RandomContinuousQuerySampler()
         self.query_optimizer = MaximumQueryOptimizer(num_tries=100)
 
-        self.num_knowledge_discovery_queries = 1000
+        self.num_knowledge_discovery_queries = 100
         self.knowledge_discovery_sampler = RandomContinuousQuerySampler()
         self.knowledge_discovery_task = DependencyKnowledgeTask()
 

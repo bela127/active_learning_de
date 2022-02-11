@@ -14,10 +14,14 @@ class DependencyKnowledgeTask(KnowledgeDiscoveryTask):
         self.global_uncertainty = 0
 
     def learn(self, num_queries):
-        xs = self.sampler.sample(num_queries)
-        ys = self.surrogate_model.query(xs)
+        xs_gt = self.sampler.sample(num_queries)
+        xs, ys = self.surrogate_model.query(xs_gt)
 
-        r, p = pearsonr(xs, ys)
+        print("xs_gt:", xs_gt[0,:])
+        print("xs   :", xs[0,:])
+        print("ys   :", ys[0,:])
+
+        r, p = pearsonr(xs[:,0], ys[:,0])
         self.global_uncertainty = p
 
         return r, p

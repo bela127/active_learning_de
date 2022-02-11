@@ -14,7 +14,7 @@ class SimpleResultEvaluator(EvaluationMetric):
         self.results = []
 
     def signal_knowledge_discovery_stop(self):
-        result = self.blueprint.knowledge_discovery_task.learn(1000)
+        result = self.blueprint.knowledge_discovery_task.learn(100)
         self.results.append(result)
 
     def eval(self):
