@@ -1,8 +1,9 @@
+from typing import List
 from active_learning_ts.experiments.blueprint import Blueprint
 from active_learning_ts.data_retrievement.augmentation.no_augmentation import (
     NoAugmentation,
 )
-from active_learning_ts.data_retrievement.interpolation.interpolation_strategies.flat_map_interpolation import FlatMapInterpolation
+from active_learning_ts.data_retrievement.interpolation_strategies.flat_map_interpolation import FlatMapInterpolation
 
 from active_learning_ts.evaluation.evaluation_metrics.avg_round_time_evaluator import (
     AvgRoundTimeEvaluator,
@@ -13,7 +14,7 @@ from active_learning_ts.instance_properties.costs.constant_instance_cost import 
 from active_learning_ts.instance_properties.objectives.constant_instance_objective import (
     ConstantInstanceObjective,
 )
-from active_learning_ts.pools.retrievement_strategies.exact_retrievement import (
+from active_learning_ts.data_retrievement.retrievement_strategies.exact_retrievement import (
     ExactRetrievement,
 )
 from active_learning_ts.query_selection.query_optimizers.no_query_optimizer import NoQueryOptimizer
@@ -27,9 +28,12 @@ from active_learning_ts.query_selection.selection_criterias.no_selection_criteri
 from active_learning_ts.query_selection.selection_criterias.knowledge_uncertainty_selection_criteria import (
     KnowledgeUncertaintySelectionCriteria,
 )
-from active_learning_ts.surrogate_models.no_surrogate_model import NoSurrogateModel
+from active_learning_ts.surrogate_model.surrogate_models.no_surrogate_model import NoSurrogateModel
+from active_learning_de.surrogate_models.pool_surrogate_model import PoolSurrogateModel
+
 
 from active_learning_ts.training.training_strategies.no_training_strategy import NoTrainingStrategy
+from active_learning_ts.training.training_strategies.direct_training_strategy import DirectTrainingStrategy
 
 
 from distribution_data_generation.data_sources.chaotic_data_source import (
@@ -74,6 +78,8 @@ from active_learning_de.knowledge_discovery.dependency_knowledge_task import Dep
 
 from active_learning_de.evaluator.simple_result_evaluator import SimpleResultEvaluator
 
+from active_learning_ts.experiments.blueprint_element import BlueprintElement
+
 data_sources = [
     ChaoticDataSource,
     CrossDataSource,
@@ -94,49 +100,39 @@ data_sources = [
     ZDataSource,
 ]
 
-algorithms = []
+algorithms: List = []
 
 dynamic_blueprints = []
 
 def create_blueprint(data_source, algorithm):
-    org_init = Simple_Dependency_Estimation.__init__
-    def init(self):
-        org_init(self)
-        self.data_source = data_source()
-    Simple_Dependency_Estimation.__init__ = init
-    
-    return Simple_Dependency_Estimation
+    pass
 
 for data_source in data_sources:
     for algorithm in algorithms:
         dynamic_blueprints.append(create_blueprint(data_source, algorithm))
 
+repeat = 1
 
+learning_steps = 200
 
-class Simple_Dependency_Estimation(Blueprint):
-    repeat = 1
+data_source = BlueprintElement[HourglassDataSource]({'in_dim': 1})
+retrievement_strategy = BlueprintElement[ExactRetrievement]()
+interpolation_strategy = BlueprintElement[FlatMapInterpolation]()
 
-    def __init__(self):
-        self.learning_steps = 1000
+augmentation_pipeline = BlueprintElement[NoAugmentation]()
 
-        self.data_source = SineDataSource(1)
-        self.retrievement_strategy = ExactRetrievement()
-        self.interpolation_strategy = FlatMapInterpolation()
+instance_level_objective = BlueprintElement[ConstantInstanceObjective]()
+instance_cost = BlueprintElement[ConstantInstanceCost]()
 
-        self.augmentation_pipeline = NoAugmentation()
+surrogate_model = BlueprintElement[PoolSurrogateModel]()
+training_strategy = BlueprintElement[DirectTrainingStrategy]()
 
-        self.instance_level_objective = ConstantInstanceObjective()
-        self.instance_cost = ConstantInstanceCost()
+selection_criteria = BlueprintElement[NoSelectionCriteria]()
+surrogate_sampler = BlueprintElement[RandomContinuousQuerySampler]()
+query_optimizer = BlueprintElement[MaximumQueryOptimizer]({'num_tries': 100})
 
-        self.surrogate_model = NoSurrogateModel()
-        self.training_strategy = NoTrainingStrategy()
+num_knowledge_discovery_queries = 100
+knowledge_discovery_sampler = BlueprintElement[RandomContinuousQuerySampler]()
+knowledge_discovery_task = BlueprintElement[DependencyKnowledgeTask]()
 
-        self.selection_criteria = NoSelectionCriteria()
-        self.surrogate_sampler = RandomContinuousQuerySampler()
-        self.query_optimizer = MaximumQueryOptimizer(num_tries=100)
-
-        self.num_knowledge_discovery_queries = 100
-        self.knowledge_discovery_sampler = RandomContinuousQuerySampler()
-        self.knowledge_discovery_task = DependencyKnowledgeTask()
-
-        self.evaluation_metrics = [AvgRoundTimeEvaluator(), SimpleResultEvaluator()]
+evaluation_metrics = [BlueprintElement[AvgRoundTimeEvaluator](),  BlueprintElement[SimpleResultEvaluator]()]

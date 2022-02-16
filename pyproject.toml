@@ -10,6 +10,9 @@ python = ">=3.8,<3.10"
 distribution-data-generation = {git = "https://github.com/bela127/distribution_data_generation.git"}
 active-learning-ts = {git = "https://github.com/bela127/active_learning_ts.git"}
 libclang = "<12.0"
+tensor-annotations = "^1.0.2"
+tensor-annotations-jax-stubs = "^1.0.0"
+data-science-types = "^0.2.23"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
