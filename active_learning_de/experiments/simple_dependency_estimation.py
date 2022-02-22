@@ -94,23 +94,26 @@ from active_learning_de.knowledge_discovery.dependency_knowledge_task import (
     DependencyKnowledgeTask,
 )
 
-from active_learning_de.evaluator.simple_result_evaluator import SimpleResultEvaluator
-from active_learning_de.evaluator.display_data_evaluator import DisplayDataEvaluator
-
+from active_learning_de.experiments.simple_dependency_estimation_blueprint import SimpleDependencyBlueprint
 from active_learning_ts.experiments.blueprint_element import BlueprintElement
 
-data_sources = [
+test_blueprint = SimpleDependencyBlueprint(data_source = BlueprintElement[SineDataSource]({"dim": 1}))
+
+data_sources1 = [
     ChaoticDataSource,
     CrossDataSource,
     CubicDataSource,
     DoubleLinearDataSource,
     HourglassDataSource,
+    MultiGausianDataSource,
+]
+
+data_sources2 = [
     HypercubeDataSource,
     InvZDataSource,
     LinearDataSource,
     LinearPeriodicDataSource,
     LinearThenNoiseDataSource,
-    MultiGausianDataSource,
     NonCoexistenceDataSource,
     PowerDataSource,
     RandomDataSource,
@@ -119,45 +122,24 @@ data_sources = [
     ZDataSource,
 ]
 
-algorithms: List = []
-
-dynamic_blueprints = []
-
-
-def create_blueprint(data_source, algorithm):
-    pass
-
-
-for data_source in data_sources:
-    for algorithm in algorithms:
-        dynamic_blueprints.append(create_blueprint(data_source, algorithm))
-
-repeat = 1
-
-learning_steps = 200
-
-data_source = BlueprintElement[SineDataSource]({"dim": 1})
-retrievement_strategy = BlueprintElement[ExactRetrievement]()
-interpolation_strategy = BlueprintElement[FlatMapInterpolation]()
-
-augmentation_pipeline = BlueprintElement[NoAugmentation]()
-
-instance_level_objective = BlueprintElement[ConstantInstanceObjective]()
-instance_cost = BlueprintElement[ConstantInstanceCost]()
-
-surrogate_model = BlueprintElement[PoolSurrogateModel]()
-training_strategy = BlueprintElement[DirectTrainingStrategy]()
-
-selection_criteria = BlueprintElement[NoSelectionCriteria]()
-surrogate_sampler = BlueprintElement[RandomContinuousQuerySampler]()
-query_optimizer = BlueprintElement[MaximumQueryOptimizer]({"num_tries": 100})
-
-num_knowledge_discovery_queries = 100
-knowledge_discovery_sampler = BlueprintElement[RandomContinuousQuerySampler]()
-knowledge_discovery_task = BlueprintElement[DependencyKnowledgeTask]()
-
-evaluation_metrics = [
-    BlueprintElement[AvgRoundTimeEvaluator](),
-    BlueprintElement[SimpleResultEvaluator](),
-    BlueprintElement[DisplayDataEvaluator](),
+algorithms: List = [DependencyKnowledgeTask,
 ]
+
+dynamic_blueprints = [test_blueprint]
+
+
+def create_blueprint1(data_source, algorithm):
+    return SimpleDependencyBlueprint(data_source = BlueprintElement[data_source]({"in_dim": 1}))
+
+def create_blueprint2(data_source, algorithm):
+    return SimpleDependencyBlueprint(data_source = BlueprintElement[data_source]({"dim": 1}))
+
+
+for data_source in data_sources1:
+    for algorithm in algorithms:
+        dynamic_blueprints.append(create_blueprint1(data_source, algorithm))
+
+for data_source in data_sources2:
+    for algorithm in algorithms:
+        dynamic_blueprints.append(create_blueprint2(data_source, algorithm))
+
