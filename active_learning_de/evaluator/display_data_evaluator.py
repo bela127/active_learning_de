@@ -14,10 +14,9 @@ class DisplayDataEvaluator(EvaluationMetric):
         plt.ion()
         fig, ax = plt.subplots()
         self.fig = fig
+        self.ax = ax 
         x, y = [],[]
         self.sc = ax.scatter(x,y)
-        plt.xlim(0,1)
-        plt.ylim(-1,1)
 
         plt.draw()
     
@@ -28,10 +27,11 @@ class DisplayDataEvaluator(EvaluationMetric):
         query = tf.convert_to_tensor(list(range(0,len(self.blueprint.knowledge_discovery_task.sampler.pool.get_all_elements()))))
         xs, ys = self.blueprint.knowledge_discovery_task.surrogate_model.query(query)
         
-
+        self.ax.set_xlim(min(xs),max(xs))
+        self.ax.set_ylim(min(ys),max(ys))
         self.sc.set_offsets(np.c_[xs,ys])
         self.fig.canvas.draw_idle()
-        plt.pause(0.02)
+        plt.pause(0.01)
 
         
 
