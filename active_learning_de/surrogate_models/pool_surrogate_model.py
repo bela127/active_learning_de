@@ -26,6 +26,9 @@ class PoolSurrogateModel(SurrogateModel):
     def post_init(self, data_retriever: DataRetriever):
         super().post_init(data_retriever)
         self.in_dim = self.query_pool.shape[0]
+        self.query_pool = DiscreteVectorPool(
+            self.in_dim, [], ExactRetrievement()
+        )
 
     def learn(self, points: tf.Tensor, values: tf.Tensor):
         if self.training_points is None:
@@ -42,14 +45,6 @@ class PoolSurrogateModel(SurrogateModel):
         return tf.convert_to_tensor([0.0] * len(points))
 
     def query(self, points: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:
-        print(self.training_points)
-        print(points)
-        mask = tf.equal(self.training_points, points)
-        indexes = tf.where(mask)
-        print(mask)
-        print(indexes)
-        x = tf.gather_nd(self.training_points, indexes)
-        y = tf.gather_nd(self.training_values, indexes)
-        print(x)
-        print(y)
+        x = tf.gather(self.training_points, points)
+        y = tf.gather(self.training_values, points)
         return x, y

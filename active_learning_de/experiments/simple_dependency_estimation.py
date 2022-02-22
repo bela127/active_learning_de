@@ -3,7 +3,9 @@ from active_learning_ts.experiments.blueprint import Blueprint
 from active_learning_ts.data_retrievement.augmentation.no_augmentation import (
     NoAugmentation,
 )
-from active_learning_ts.data_retrievement.interpolation_strategies.flat_map_interpolation import FlatMapInterpolation
+from active_learning_ts.data_retrievement.interpolation_strategies.flat_map_interpolation import (
+    FlatMapInterpolation,
+)
 
 from active_learning_ts.evaluation.evaluation_metrics.avg_round_time_evaluator import (
     AvgRoundTimeEvaluator,
@@ -17,23 +19,37 @@ from active_learning_ts.instance_properties.objectives.constant_instance_objecti
 from active_learning_ts.data_retrievement.retrievement_strategies.exact_retrievement import (
     ExactRetrievement,
 )
-from active_learning_ts.query_selection.query_optimizers.no_query_optimizer import NoQueryOptimizer
-from active_learning_ts.query_selection.query_optimizers.maximum_query_optimizer import MaximumQueryOptimizer
+from active_learning_ts.query_selection.query_optimizers.no_query_optimizer import (
+    NoQueryOptimizer,
+)
+from active_learning_ts.query_selection.query_optimizers.maximum_query_optimizer import (
+    MaximumQueryOptimizer,
+)
 
-from active_learning_ts.query_selection.query_samplers.no_query_sampler import NoQuerySampler
+from active_learning_ts.query_selection.query_samplers.no_query_sampler import (
+    NoQuerySampler,
+)
 from active_learning_ts.query_selection.query_samplers.random_query_sampler import (
     RandomContinuousQuerySampler,
 )
-from active_learning_ts.query_selection.selection_criterias.no_selection_criteria import NoSelectionCriteria
+from active_learning_ts.query_selection.selection_criterias.no_selection_criteria import (
+    NoSelectionCriteria,
+)
 from active_learning_ts.query_selection.selection_criterias.knowledge_uncertainty_selection_criteria import (
     KnowledgeUncertaintySelectionCriteria,
 )
-from active_learning_ts.surrogate_model.surrogate_models.no_surrogate_model import NoSurrogateModel
+from active_learning_ts.surrogate_model.surrogate_models.no_surrogate_model import (
+    NoSurrogateModel,
+)
 from active_learning_de.surrogate_models.pool_surrogate_model import PoolSurrogateModel
 
 
-from active_learning_ts.training.training_strategies.no_training_strategy import NoTrainingStrategy
-from active_learning_ts.training.training_strategies.direct_training_strategy import DirectTrainingStrategy
+from active_learning_ts.training.training_strategies.no_training_strategy import (
+    NoTrainingStrategy,
+)
+from active_learning_ts.training.training_strategies.direct_training_strategy import (
+    DirectTrainingStrategy,
+)
 
 
 from distribution_data_generation.data_sources.chaotic_data_source import (
@@ -74,9 +90,12 @@ from distribution_data_generation.data_sources.sine_data_source import SineDataS
 from distribution_data_generation.data_sources.star_data_source import StarDataSource
 from distribution_data_generation.data_sources.z_data_source import ZDataSource
 
-from active_learning_de.knowledge_discovery.dependency_knowledge_task import DependencyKnowledgeTask
+from active_learning_de.knowledge_discovery.dependency_knowledge_task import (
+    DependencyKnowledgeTask,
+)
 
 from active_learning_de.evaluator.simple_result_evaluator import SimpleResultEvaluator
+from active_learning_de.evaluator.display_data_evaluator import DisplayDataEvaluator
 
 from active_learning_ts.experiments.blueprint_element import BlueprintElement
 
@@ -104,8 +123,10 @@ algorithms: List = []
 
 dynamic_blueprints = []
 
+
 def create_blueprint(data_source, algorithm):
     pass
+
 
 for data_source in data_sources:
     for algorithm in algorithms:
@@ -115,7 +136,7 @@ repeat = 1
 
 learning_steps = 200
 
-data_source = BlueprintElement[HourglassDataSource]({'in_dim': 1})
+data_source = BlueprintElement[SineDataSource]({"dim": 1})
 retrievement_strategy = BlueprintElement[ExactRetrievement]()
 interpolation_strategy = BlueprintElement[FlatMapInterpolation]()
 
@@ -129,10 +150,14 @@ training_strategy = BlueprintElement[DirectTrainingStrategy]()
 
 selection_criteria = BlueprintElement[NoSelectionCriteria]()
 surrogate_sampler = BlueprintElement[RandomContinuousQuerySampler]()
-query_optimizer = BlueprintElement[MaximumQueryOptimizer]({'num_tries': 100})
+query_optimizer = BlueprintElement[MaximumQueryOptimizer]({"num_tries": 100})
 
 num_knowledge_discovery_queries = 100
 knowledge_discovery_sampler = BlueprintElement[RandomContinuousQuerySampler]()
 knowledge_discovery_task = BlueprintElement[DependencyKnowledgeTask]()
 
-evaluation_metrics = [BlueprintElement[AvgRoundTimeEvaluator](),  BlueprintElement[SimpleResultEvaluator]()]
+evaluation_metrics = [
+    BlueprintElement[AvgRoundTimeEvaluator](),
+    BlueprintElement[SimpleResultEvaluator](),
+    BlueprintElement[DisplayDataEvaluator](),
+]
