@@ -97,7 +97,7 @@ from active_learning_de.knowledge_discovery.dependency_knowledge_task import (
 from active_learning_de.experiments.simple_dependency_estimation_blueprint import SimpleDependencyBlueprint
 from active_learning_ts.experiments.blueprint_element import BlueprintElement
 
-test_blueprint = SimpleDependencyBlueprint(data_source = BlueprintElement[SineDataSource]({"dim": 1}))
+test_blueprint = SimpleDependencyBlueprint(data_source = BlueprintElement[SineDataSource]({"dim": 1}), repeat=2)
 
 data_sources1 = [
     ChaoticDataSource,
