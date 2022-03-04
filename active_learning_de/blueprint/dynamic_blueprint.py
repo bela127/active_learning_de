@@ -15,7 +15,7 @@ from active_learning_ts.data_retrievement.retrievement_strategy import Retrievem
 from active_learning_ts.query_selection.query_optimizer import QueryOptimizer
 from active_learning_ts.query_selection.query_sampler import QuerySampler
 from active_learning_ts.query_selection.selection_criteria import SelectionCriteria
-from active_learning_ts.surrogate_model.surrogate_model import SurrogateModel
+from active_learning_ts.surrogate_model.surrogate_model import SurrogateModelConfig
 from active_learning_ts.training.training_strategy import TrainingStrategy
 
 from active_learning_ts.data_retrievement.data_sources.test_data_source import TestDataSource
@@ -36,7 +36,7 @@ from active_learning_ts.instance_properties.objectives.constant_instance_objecti
     ConstantInstanceObjective,
 )
 
-from active_learning_de.surrogate_models.pool_surrogate_model import PoolSurrogateModel
+from active_learning_de.surrogate_models.pool_surrogate_model import PoolSurrogateModel, PoolSurrogateModelConfig
 
 from active_learning_ts.training.training_strategies.direct_training_strategy import (
     DirectTrainingStrategy,
@@ -68,7 +68,7 @@ class DynamicBlueprint(Blueprint):
     instance_level_objective: BlueprintElement[InstanceObjective] = BlueprintElement[ConstantInstanceObjective]()
     instance_cost: BlueprintElement[InstanceCost] = BlueprintElement[ConstantInstanceCost]()
 
-    surrogate_model: BlueprintElement[SurrogateModel] = BlueprintElement[PoolSurrogateModel]()
+    surrogate_model: SurrogateModelConfig = PoolSurrogateModelConfig()
     training_strategy: BlueprintElement[TrainingStrategy] = BlueprintElement[DirectTrainingStrategy]()
 
     surrogate_sampler: BlueprintElement[QuerySampler] = BlueprintElement[RandomContinuousQuerySampler]()
