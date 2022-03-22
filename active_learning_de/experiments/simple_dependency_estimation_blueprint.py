@@ -21,4 +21,3 @@ class SimpleDependencyBlueprint(DynamicBlueprint):
     BlueprintElement[SimpleResultEvaluator](),
     BlueprintElement[DisplayDataEvaluator](),
     )
-
