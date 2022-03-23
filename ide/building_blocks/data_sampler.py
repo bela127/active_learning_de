@@ -1,25 +1,41 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+
 
 from rtree import index
 from rtree.index import RT_Memory
 import numpy as np
 
-from active_learning_de.new_api.core.configuration import Configurable
+from ide.core.configuration import Configurable
+from ide.building_blocks.data_pool import DataPool
 
 if TYPE_CHECKING:
     from typing import Tuple
+    from typing_extensions import Self
 
 @dataclass
 class DataSampler(Configurable):
 
     sample_size: int
+    data_pool: DataPool = field(init=False)
 
     #@abstractmethod
     def sample(self, query, size = None) -> Tuple[Tuple[float, ...],Tuple[float, ...]]:
         ...
+
+    @property
+    def query_pool(self):
+        self.data_pool.query_pool
+
+    def __call__(self, data_pool, *args, **kwargs) -> Self:
+        obj = super().__call__(*args, **kwargs)
+
+        obj.data_pool = data_pool
+        data_pool.subscrib(obj)
+
+        return obj
 
 @dataclass
 class KNNDataSampler(DataSampler):

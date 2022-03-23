@@ -1,4 +1,4 @@
-from active_learning_de import __version__
+from ide import __version__
 
 
 def test_version():

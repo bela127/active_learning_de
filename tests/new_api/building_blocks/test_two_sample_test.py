@@ -1,15 +1,15 @@
 import numpy as np
 
-from active_learning_de.new_api.building_blocks.data_sampler import KNNDataSampler
-from active_learning_de.new_api.building_blocks.two_sample_test import MWUTwoSampleTest
-from active_learning_de.new_api.building_blocks.data_pool import FlatDataPool
+from ide.building_blocks.data_sampler import KNNDataSampler
+from ide.building_blocks.two_sample_test import MWUTwoSampleTest
+from ide.building_blocks.data_pool import FlatDataPool
 
 def test_test():
-    dp = FlatDataPool((2,))
+    dp = FlatDataPool((1,),(2,))
     dp = dp()
 
     sampler = KNNDataSampler(2, (2,))
-    sampler = sampler()
+    sampler = sampler(dp)
 
     dp.subscrib(sampler)
 
@@ -23,7 +23,7 @@ def test_test():
 
     t,p = utest.query((np.asarray((1,2.5)),np.asarray((2,2.5))))
 
-    assert t[0] == 4.0
-    assert t[1] == 2.0
+    assert t[0] == 16.0
+    assert t[1] == 8.0
 
     assert p[1] == 1.0

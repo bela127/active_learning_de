@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "active_learning_de"
+name = "ide"
 version = "0.1.0"
-description = "One class classification with uncertainty for active learning"
+description = "Interventional test for independence"
 authors = ["bela127 <bhb127@outlook.de>"]
 license = "MIT"
 

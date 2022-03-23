@@ -6,11 +6,11 @@ from dataclasses import dataclass
 from scipy.stats import mannwhitneyu
 import numpy as np
 
-from active_learning_de.new_api.building_blocks.data_sampler import DataSampler
-from active_learning_de.new_api.core.configuration import Configurable
+from ide.building_blocks.data_sampler import DataSampler
+from ide.core.configuration import Configurable
 
 if TYPE_CHECKING:
-    from active_learning_de.new_api.core.configuration import Configurable
+    from ide.core.configuration import Configurable
     from typing import Tuple, List
 
 @dataclass

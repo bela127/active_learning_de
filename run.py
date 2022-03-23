@@ -13,4 +13,4 @@ from IPython.core import ultratb
 sys.excepthook = ultratb.FormattedTB(mode='Verbose', color_scheme='Linux', call_pdb=False)
 
 
-import active_learning_de.run_experiments
+import ide.run_experiments

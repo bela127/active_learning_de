@@ -1,29 +1,28 @@
 import pytest
 from dataclasses import dataclass
-from active_learning_de.new_api.core.configuration import Configurable
+from ide.core.configuration import Configurable, InitError
 
 @dataclass
 class Test(Configurable):
     x: int
     y: int = 5
 
-    def __init__(self, x: int, y: int = 5) -> None:
-        print("init")
-        self.x = x
-        self.y = y
-        super().__init__()
-
     def __str__(self) -> str:
         return f"x = {self.x}, i = {self.y}"
-
-
 
 
 def test_configurable_fail():
     test_config: Configurable = Test(0, 6)
 
-    with pytest.raises(AttributeError):
-        assert test_config.x == 0
+    with pytest.raises(InitError) as exc_info:
+        assert test_config.x == 0 #Test not initialized
+    assert exc_info.type is InitError
+    
+    test = test_config()
+
+    with pytest.raises(AttributeError) as exc_info:
+        assert test.z == 0
+    assert exc_info.type is AttributeError
 
 
 def test_configurable_one():
@@ -35,18 +34,21 @@ def test_configurable_one():
 
 def test_configurable_change():
     test_config: Configurable = Test(0, 6)
-    test: Test = test_config()
+    test1: Test = test_config() #init
 
-    assert test.x == 0
-    assert test.y == 6
+    assert test1.x == 0 #test init
+    assert test1.y == 6
 
-    test.x = 3
-    test.y = 4
+    test1.x = 3 #change something
+    test1.y = 4
 
-    assert test.x == 3
-    assert test.y == 4
+    assert test1.x == 3 #test change
+    assert test1.y == 4
 
-    test: Test = test_config()
+    test2: Test = test_config() #re-init
 
-    assert test.x == 0
-    assert test.y == 6
+    assert test2.x == 0 #test original init
+    assert test2.y == 6
+
+    assert test1.x == 3 #test not re-init
+    assert test1.y == 4

@@ -6,6 +6,13 @@ if TYPE_CHECKING:
     from typing_extensions import Self #type: ignore
 
 
+class InitError(AttributeError):
+
+    def __init__(self, *args: object) -> None:
+        message = "Configurable has not been initialized"
+        if args: super().__init__(*args)
+        else: super().__init__(message)
+
 class ConfigurableMeta(type):
 
     def __call__(cls: type, *args: Any, **kwargs: Any) -> Any:
@@ -13,7 +20,7 @@ class ConfigurableMeta(type):
         return obj
 
 class Configurable(metaclass = ConfigurableMeta):
-    __cls: Type = type
+    __cls: Type[Self]
     __args: Tuple[Any,...] = ()
     __kwargs: Dict[str, Any] = {}
     __initialized: bool = False
@@ -24,7 +31,7 @@ class Configurable(metaclass = ConfigurableMeta):
             try:
                 attr_result = super().__getattribute__(__name)
             except AttributeError:
-                raise AttributeError("Configurable has not been initialized")
+                raise InitError()
         else:
             attr_result = super().__getattribute__(__name)
         return attr_result
@@ -37,7 +44,8 @@ class Configurable(metaclass = ConfigurableMeta):
         obj.__kwargs = kwargs
         return obj
     
-    def __call__(self) -> Self:
-        self.__initialized = True
-        self.__cls.__init__(self, *self.__args, **self.__kwargs)
-        return self
+    def __call__(self, *args, **kwargs) -> Self:
+        obj = self.__new__(self.__cls)
+        obj.__initialized = True
+        self.__cls.__init__(obj, *self.__args, **self.__kwargs)
+        return obj

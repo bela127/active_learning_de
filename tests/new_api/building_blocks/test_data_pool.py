@@ -1,13 +1,13 @@
 import numpy as np
 
-from active_learning_de.new_api.building_blocks.data_pool import FlatDataPool
-from active_learning_de.new_api.building_blocks.data_subscriber import DataSubscriber
+from ide.building_blocks.data_pool import FlatDataPool
+from ide.building_blocks.data_subscriber import DataSubscriber
 
 
 def test_data_pool_add():
-    dp = FlatDataPool((2,))
+    dp = FlatDataPool((1,),(2,))
     dp = dp()
-    assert dp.shape == (2,)
+    assert dp.result_shape == (2,)
 
     query = np.asarray((1,))
     result = np.asarray((2,2))
@@ -18,7 +18,7 @@ def test_data_pool_add():
 
 
 def test_data_pool_subscribe():
-    dp = FlatDataPool((2,))
+    dp = FlatDataPool((1,),(2,))
     dp = dp()
 
     query = np.asarray((1,))
