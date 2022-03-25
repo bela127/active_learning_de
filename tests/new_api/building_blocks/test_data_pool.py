@@ -21,14 +21,14 @@ def test_data_pool_subscribe():
     dp = FlatDataPool((1,),(2,))
     dp = dp()
 
-    query = np.asarray((1,))
-    result = np.asarray((2,2))
+    queries = np.asarray(((1,),))
+    results = np.asarray(((2,2),))
 
     class Test_Subscriber(DataSubscriber):
         def update(self, data_point):
-            queries, results = data_point
-            assert np.all(queries == query)
-            assert np.all(results == result)
+            queries_u, results_u = data_point
+            assert np.all(queries_u == queries)
+            assert np.all(results_u == results)
             
     sub = Test_Subscriber()
     sub = sub()
@@ -36,4 +36,4 @@ def test_data_pool_subscribe():
 
     assert dp._subscriber[0] == sub
 
-    dp.add((query,result))
+    dp.add((queries,results))

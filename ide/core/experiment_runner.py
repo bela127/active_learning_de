@@ -1,28 +1,38 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from ide.core.experiment.blueprint import Blueprint
-from ide.core.experiment_builder import Experiment
+from ide.core.evaluator import Evaluator
+
+from ide.core.experiment import Experiment
 
 if TYPE_CHECKING:
-    from typing import Tuple, List
+    from typing import Tuple, List, Union
+    from ide.core.blueprint import Blueprint
 
 
 
 class ExperimentRunner():
-    def __init__(self) -> None:
-        self.evaluators: List[EvaluationMetric] = []
+    def __init__(self, blueprints: List[Blueprint]) -> None:
+        self.evaluators: List[Evaluator] = []
+        self.blueprints = blueprints
 
     def run_experiment(self, blueprint: Blueprint):
         
-        for evaluation_metric in blueprint.evaluation_metrics:
+        for evaluation_metric in blueprint.evaluators:
             self.evaluators.append(evaluation_metric())
         
         for exp_nr in range(blueprint.repeat):
             experiment = Experiment(blueprint, exp_nr)
+
+            for evaluator in self.evaluators:
+                evaluator.register(experiment)
+
+            experiment.run()
         
 
-    def run_experiments(self, blueprints: List[Blueprint]):
+    def run_experiments(self, blueprints: Union[List[Blueprint], None] = None):
+        if blueprints is None: blueprints = self.blueprints
+
         for blueprint in blueprints:
             self.run_experiment(blueprint)
 

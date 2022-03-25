@@ -6,21 +6,23 @@ from dataclasses import dataclass
 from ide.core.configuration import Configurable
 
 if TYPE_CHECKING:
-    from typing import Tuple, List
+    from typing import Tuple, List, Union
+    from nptyping import NDArray, Number, Shape
+
 
 @dataclass
-class QueryPool(Configurable):
+class QueryPool():
 
-    is_discrete: bool
-    query_count: int
-    query_shape: Tuple[int,...]
-    query_ranges: Tuple[Tuple[Tuple[float,float],...],...]
+    query_count: Union[int, None]
+    query_shape: Tuple[int, ...]
+    query_ranges: NDArray[Number, Shape["... query_dims,[xi_min, xi_max]"]]
 
-    def elements_from_norm_pos(self, norm_pos):
-        ...
+    def elements_from_norm_pos(self, norm_pos: NDArray[Number, Shape["query_nr, ... query_dims"]]) -> NDArray[Number, Shape["query_nr, ... query_dims"]]:
+        elements = self.query_ranges[..., 0] + (self.query_ranges[..., 1] - self.query_ranges[..., 0]) * norm_pos
+        return elements
     
     def elements_from_index(self, index):
-        ...
+        raise NotImplementedError
     
     def all_elements(self):
-        ...
+        raise NotImplementedError

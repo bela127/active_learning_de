@@ -574,6 +574,22 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "nptyping"
+version = "2.0.0a1"
+description = "Type hints for NumPy."
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+numpy = ">=1.20.0"
+
+[package.extras]
+build = ["invoke (>=1.6.0)", "pip-tools (>=6.5.0)", "codecov (>=2.1.0)"]
+complete = ["invoke (>=1.6.0)", "pip-tools (>=6.5.0)", "codecov (>=2.1.0)", "autoflake", "black", "coverage", "isort", "mypy", "pylint", "setuptools", "wheel"]
+dev = ["autoflake", "black", "coverage", "isort", "mypy", "pylint", "setuptools", "wheel"]
+
+[[package]]
 name = "numpy"
 version = "1.22.3"
 description = "NumPy is the fundamental package for array computing with Python."
@@ -1197,7 +1213,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<3.10"
-content-hash = "28130a0dc8b8480e90c71062216821441d8111652ceb4318d3ff0ee6b01ccb4d"
+content-hash = "8f9c7a8d52c1cd714d0cdd8b07a2b1c2ffab82ffd6e6126597b29824745c92ce"
 
 [metadata.files]
 absl-py = [
@@ -1558,6 +1574,9 @@ mypy = [
 mypy-extensions = [
     {file = "mypy_extensions-0.4.3-py2.py3-none-any.whl", hash = "sha256:090fedd75945a69ae91ce1303b5824f428daf5a028d2f6ab8a299250a846f15d"},
     {file = "mypy_extensions-0.4.3.tar.gz", hash = "sha256:2d82818f5bb3e369420cb3c4060a7970edba416647068eb4c5343488a6c604a8"},
+]
+nptyping = [
+    {file = "nptyping-2.0.0a1-py3-none-any.whl", hash = "sha256:157490988e0ede5f47c0edc091211aa17600c7af2c39707e7764b17685005e23"},
 ]
 numpy = [
     {file = "numpy-1.22.3-cp310-cp310-macosx_10_14_x86_64.whl", hash = "sha256:92bfa69cfbdf7dfc3040978ad09a48091143cffb778ec3b03fa170c494118d75"},

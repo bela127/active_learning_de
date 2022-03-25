@@ -3,16 +3,10 @@ from typing import TYPE_CHECKING
 
 from dataclasses import dataclass
 
-from ide.core.configuration import Configurable
+from ide.core.stopping_criteria import StoppingCriteria
 
 if TYPE_CHECKING:
     from typing import Tuple, List
-
-@dataclass
-class StoppingCriteria(Configurable):
-
-    def next(self, iteration):
-        return True
 
 @dataclass
 class LearningStepStoppingCriteria(StoppingCriteria):
