@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 from dataclasses import dataclass
 
 from scipy.stats import mannwhitneyu
-import numpy as np
+from matplotlib import pyplot as plot
 
 from ide.building_blocks.data_sampler import DataSampler
 from ide.core.configuration import Configurable
@@ -20,14 +20,11 @@ class TwoSampleTest(Configurable):
         ...
 
 
-
 @dataclass
 class MWUTwoSampleTest(TwoSampleTest):
     
-    
     def test(self, samples1, samples2):
 
-        
         U, p = mannwhitneyu(samples1, samples2, method="exact", axis=1)
         return U, p
 

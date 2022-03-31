@@ -45,7 +45,8 @@ class Configurable(metaclass = ConfigurableMeta):
         return obj
     
     def __call__(self, *args, **kwargs) -> Self:
-        obj = self.__new__(self.__cls)
+        obj = self.__new__(self.__cls, *self.__args, **self.__kwargs)
         obj.__initialized = True
         self.__cls.__init__(obj, *self.__args, **self.__kwargs)
         return obj
+

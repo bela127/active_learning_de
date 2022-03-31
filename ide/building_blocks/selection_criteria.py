@@ -47,10 +47,19 @@ class TestSelectionCriteria(SelectionCriteria):
 
 class PValueSelectionCriteria(TestSelectionCriteria):
     def query(self, queries):
-        t, p, u = self.test_interpolator.query(queries)
 
-        score = 1 - p
-        return score
+        size = queries.shape[0] // 2
+        test_queries = np.reshape(queries, (size,2,-1))
+
+        t, p, u = self.test_interpolator.query(test_queries)
+
+        mean_p = np.mean(p, axis=1)
+
+        score = 1 - mean_p
+
+        scores = np.concatenate((score,score))
+
+        return scores
     
 @dataclass
 class PValueUncertaintySelectionCriteria(TestSelectionCriteria):

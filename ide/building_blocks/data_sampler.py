@@ -111,7 +111,7 @@ class KDTreeKNNDataSampler(DataSampler):
 
     def sample(self, queries, size = None):
         if size is None: size = self.sample_size
-        if self.data_pool.query_pool.query_count < size: size = self.data_pool.query_pool.query_count
+        if self.data_pool.query_pool.query_count // 3 < size: size = self.data_pool.query_pool.query_count // 3
 
         kneighbor_indexes = self._knn.kneighbors(queries, n_neighbors=size, return_distance=False)
 

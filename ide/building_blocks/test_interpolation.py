@@ -27,12 +27,12 @@ class KNNTestInterpolator(TestInterpolator):
     def query(self, queries):
 
         queries1 = queries[:,0,:]
-        queries2 = queries[:,0,:]
+        queries2 = queries[:,1,:]
 
-        sample_queries1, sample1 = self.data_sampler.sample(queries1)
-        sample_queries2, sample2 = self.data_sampler.sample(queries2)
+        sample_queries1, samples1 = self.data_sampler.sample(queries1)
+        sample_queries2, samples2 = self.data_sampler.sample(queries2)
 
-        t,p = self.test.test(sample1, sample2)
+        t,p = self.test.test(samples1, samples2)
 
         u = self.uncertainty((queries1, queries2), sample_queries1, sample_queries2)
 

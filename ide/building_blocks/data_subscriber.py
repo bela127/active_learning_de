@@ -9,4 +9,4 @@ if TYPE_CHECKING:
 class DataSubscriber(Configurable):
 
     def update(self, data_point):
-        ...
+        raise NotImplementedError

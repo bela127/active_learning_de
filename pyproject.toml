@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ide"
-version = "0.1.0"
+version = "0.2.0"
 description = "Interventional test for independence"
 authors = ["bela127 <bhb127@outlook.de>"]
 license = "MIT"

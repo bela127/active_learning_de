@@ -1,7 +1,7 @@
 import numpy as np
 
 from ide.building_blocks.test_interpolation import KNNTestInterpolator
-from ide.building_blocks.data_sampler import KNNDataSampler
+from ide.building_blocks.data_sampler import KDTreeKNNDataSampler
 from ide.building_blocks.two_sample_test import MWUTwoSampleTest
 from ide.building_blocks.data_pool import FlatDataPool
 
@@ -9,7 +9,7 @@ def test_uncertainty():
     dp = FlatDataPool((1,),(2,))
     dp = dp()
 
-    sampler = KNNDataSampler(2, (2,))
+    sampler = KDTreeKNNDataSampler(2)
     sampler = sampler(dp)
     
 

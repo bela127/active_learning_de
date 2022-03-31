@@ -7,8 +7,9 @@ class Test(Configurable):
     x: int
     y: int = 5
 
-    def __str__(self) -> str:
-        return f"x = {self.x}, i = {self.y}"
+def test_configurable_print():
+    test_config: Configurable = Test(0, 6)
+    assert test_config.__repr__() == "Test(0, 6)"
 
 
 def test_configurable_fail():
