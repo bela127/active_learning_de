@@ -3,8 +3,6 @@ from typing import TYPE_CHECKING
 
 from dataclasses import dataclass
 
-from ide.core.configuration import Configurable
-
 if TYPE_CHECKING:
     from typing import Tuple, List, Union
     from nptyping import NDArray, Number, Shape

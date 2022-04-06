@@ -2,34 +2,41 @@ from __future__ import annotations
 import imp
 from typing import TYPE_CHECKING
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import numpy as np
 
+from ide.core.query.selection_criteria import SelectionCriteria, NoSelectionCriteria
+from ide.building_blocks.experiment_modules import DependencyExperiment, InterventionDependencyExperiment
 
-from ide.building_blocks.test_interpolation import KNNTestInterpolator, TestInterpolator
-from ide.core.configuration import Configurable
-from ide.core.query_pool import QueryPool
 
 if TYPE_CHECKING:
-    from typing import Tuple, List
-    from typing_extensions import Self
-    from ide.core.experiment_modules import ExperimentModules
+    from typing import Optional
+    from typing_extensions import Self #type: ignore
+    from ide.building_blocks.test_interpolation import TestInterpolator
+    from ide.building_blocks.dependency_test import DependencyTest
 
-class SelectionCriteria(Configurable):
-
-    def query(self, queries) -> float:
-        raise NotImplementedError
-
+@dataclass
+class QueryTestNoSelectionCritera(NoSelectionCriteria):
+    dependency_test: Optional[DependencyTest] = field(init=False, default=None)
+    
     @property
-    def query_pool(self) -> QueryPool:
-        raise NotImplementedError
+    def query_pool(self):
+        return self.dependency_test.data_sampler.query_pool
+    
+    def __call__(self, exp_modules = None, **kwargs) -> Self:
+        obj = super().__call__(exp_modules, **kwargs)
 
-    def __call__(self, exp_modules: ExperimentModules, *args, **kwargs) -> Self:
-        return super().__call__(*args, **kwargs)
+        if isinstance(exp_modules, DependencyExperiment):
+            obj.dependency_test = exp_modules.dependency_test
+        else:
+            raise ValueError
 
+        return obj
+
+@dataclass
 class TestSelectionCriteria(SelectionCriteria):
-    test_interpolator: TestInterpolator
+    test_interpolator: Optional[TestInterpolator] = field(init=False, default=None)
 
     def query(self, queries) -> float:
         raise NotImplementedError
@@ -38,10 +45,13 @@ class TestSelectionCriteria(SelectionCriteria):
     def query_pool(self):
         return self.test_interpolator.query_pool
 
-    def __call__(self, exp_modules: ExperimentModules, *args, **kwargs) -> Self:
-        obj = super().__call__(exp_modules, *args, **kwargs)
+    def __call__(self, exp_modules = None, **kwargs) -> Self:
+        obj = super().__call__(exp_modules, **kwargs)
 
-        obj.test_interpolator = exp_modules.test_interpolator(exp_modules)
+        if isinstance(exp_modules, InterventionDependencyExperiment):
+            obj.test_interpolator = exp_modules.test_interpolator
+        else:
+            raise ValueError()
 
         return obj
 
@@ -63,7 +73,7 @@ class PValueSelectionCriteria(TestSelectionCriteria):
     
 @dataclass
 class PValueUncertaintySelectionCriteria(TestSelectionCriteria):
-    explore_exploit_trade_of : float
+    explore_exploit_trade_of : float = 0.5
 
     def query(self, queries):
 
@@ -74,7 +84,44 @@ class PValueUncertaintySelectionCriteria(TestSelectionCriteria):
 
         mean_p = np.mean(p, axis=1)
 
-        score = (1 - mean_p)*self.explore_exploit_trade_of + u / self.explore_exploit_trade_of
+        score = u * self.explore_exploit_trade_of + (1 - mean_p) * (1 - self.explore_exploit_trade_of)
+
+        scores = np.concatenate((score,score))
+
+        return scores
+
+
+@dataclass
+class TestScoreUncertaintySelectionCriteria(TestSelectionCriteria):
+    explore_exploit_trade_of : float = 0.5
+
+    def query(self, queries):
+
+        size = queries.shape[0] // 2
+        test_queries = np.reshape(queries, (size,2,-1))
+
+        t, p, u = self.test_interpolator.query(test_queries)
+
+        mean_t = np.mean(t, axis=1)
+
+        score = mean_t*self.explore_exploit_trade_of + u * (1 - self.explore_exploit_trade_of)
+
+        scores = np.concatenate((score,score))
+
+        return scores
+
+class TestScoreSelectionCriteria(TestSelectionCriteria):
+
+    def query(self, queries):
+
+        size = queries.shape[0] // 2
+        test_queries = np.reshape(queries, (size,2,-1))
+
+        t, p, u = self.test_interpolator.query(test_queries)
+
+        mean_t = np.mean(t, axis=1)
+
+        score = mean_t
 
         scores = np.concatenate((score,score))
 

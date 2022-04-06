@@ -17,15 +17,15 @@ class ExperimentRunner():
         self.blueprints = blueprints
 
     def run_experiment(self, blueprint: Blueprint):
+        self.evaluators = []
         
-        for evaluation_metric in blueprint.evaluators:
-            self.evaluators.append(evaluation_metric())
+        for evaluator in blueprint.evaluators:
+            self.evaluators.append(evaluator())
         
         for exp_nr in range(blueprint.repeat):
             experiment = Experiment(blueprint, exp_nr)
 
-            for evaluator in self.evaluators:
-                evaluator.register(experiment)
+            self.register_evaluators(experiment)
 
             experiment.run()
         

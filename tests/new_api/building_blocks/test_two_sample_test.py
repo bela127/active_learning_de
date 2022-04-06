@@ -1,8 +1,8 @@
 import numpy as np
 
-from ide.building_blocks.data_sampler import KDTreeKNNDataSampler
+from ide.modules.data_sampler import KDTreeKNNDataSampler
 from ide.building_blocks.two_sample_test import MWUTwoSampleTest
-from ide.building_blocks.data_pool import FlatDataPool
+from ide.modules.data_pool import FlatDataPool
 
 def test_test():
     dp = FlatDataPool((1,),(2,))

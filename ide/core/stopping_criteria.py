@@ -11,5 +11,5 @@ if TYPE_CHECKING:
 @dataclass
 class StoppingCriteria(Configurable):
 
-    def next(self, iteration):
+    def next(self, iteration: int) -> bool:
         return True

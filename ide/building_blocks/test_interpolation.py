@@ -5,20 +5,25 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from ide.building_blocks.data_sampler import DataSampler
-from ide.building_blocks.two_sample_test import TwoSampleTest
 from ide.core.experiment_module import ExperimentModule
 from ide.core.queryable import Queryable
 
 if TYPE_CHECKING:
-    from typing import Tuple, List, Any
-    from typing_extensions import Self
+    from typing_extensions import Self #type: ignore
     from ide.core.experiment_modules import ExperimentModules
+    from ide.core.data_sampler import DataSampler
+    from ide.building_blocks.two_sample_test import TwoSampleTest
+
 
 
 @dataclass
 class TestInterpolator(Queryable, ExperimentModule):
     test: TwoSampleTest
+
+    def __call__(self, exp_modules: ExperimentModules = None, **kwargs) -> Self:
+        obj = super().__call__(exp_modules, **kwargs)
+        obj.test = obj.test()
+        return obj
 
 @dataclass
 class KNNTestInterpolator(TestInterpolator):
@@ -49,7 +54,7 @@ class KNNTestInterpolator(TestInterpolator):
     def query_pool(self):
         return self.data_sampler.query_pool
 
-    def __call__(self, exp_modules: ExperimentModules, *args, **kwargs) -> Self:
-        obj: Self = super().__call__(exp_modules, *args, **kwargs)
+    def __call__(self, exp_modules = None, **kwargs) -> Self:
+        obj = super().__call__(exp_modules, **kwargs)
         obj.data_sampler = obj.data_sampler(exp_modules.data_pool)
         return obj

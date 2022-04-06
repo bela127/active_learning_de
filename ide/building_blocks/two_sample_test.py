@@ -3,10 +3,9 @@ from typing import TYPE_CHECKING
 
 from dataclasses import dataclass
 
-from scipy.stats import mannwhitneyu
-from matplotlib import pyplot as plot
+from scipy.stats import mannwhitneyu #type: ignore
 
-from ide.building_blocks.data_sampler import DataSampler
+from ide.core.data_sampler import DataSampler
 from ide.core.configuration import Configurable
 
 if TYPE_CHECKING:

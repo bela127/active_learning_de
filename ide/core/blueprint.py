@@ -4,12 +4,12 @@ from typing import TYPE_CHECKING
 from dataclasses import dataclass
 
 if TYPE_CHECKING:
-    from typing import Iterable
+    from typing import Iterable, Optional
 
-    from ide.building_blocks.data_pool import DataPool
+    from ide.core.data_pool import DataPool
     from ide.core.oracle.oracle import Oracle
-    from ide.building_blocks.query_optimizer import QueryOptimizer
-    from ide.building_blocks.query_sampler import QuerySampler
+    from ide.core.query.query_optimizer import QueryOptimizer
+    from ide.core.query.query_sampler import QuerySampler
     from ide.core.evaluator import Evaluator
     from ide.core.experiment_modules import ExperimentModules
     from ide.core.stopping_criteria import StoppingCriteria
@@ -32,3 +32,5 @@ class Blueprint():
     experiment_modules: ExperimentModules
 
     evaluators: Iterable[Evaluator]
+
+    exp_name: Optional[str]= None

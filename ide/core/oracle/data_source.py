@@ -3,10 +3,8 @@ from typing import TYPE_CHECKING
 
 from dataclasses import dataclass, field
 
-import numpy as np
-
 from ide.core.queryable import Queryable
-from ide.core.query_pool import QueryPool
+from ide.core.query.query_pool import QueryPool
 
 if TYPE_CHECKING:
     from typing import Tuple, List

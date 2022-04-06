@@ -5,12 +5,14 @@ from dataclasses import dataclass
 
 from ide.core.oracle.data_source import DataSource
 from ide.core.oracle.augmentation import Augmentation
-from ide.core.query_pool import QueryPool
+from ide.core.query.query_pool import QueryPool
 from ide.core.queryable import Queryable
 
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing_extensions import Self #type: ignore
+    from typing import Tuple
+    from nptyping import NDArray, Number, Shape
 
 
 @dataclass
@@ -22,7 +24,7 @@ class Oracle(Queryable):
     augmentation: Augmentation
 
 
-    def query(self, query_candidates):
+    def query(self, query_candidates: NDArray[Number, Shape["query_nr, ... query_dim"]]) -> Tuple[NDArray[Number, Shape["query_nr, ... query_dim"]], NDArray[Number, Shape["query_nr, ... result_dim"]]]:
         data_points = self.data_source.query(query_candidates)
         augmented_data_points = self.augmentation.apply(data_points)
 

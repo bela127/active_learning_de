@@ -1,7 +1,7 @@
 import numpy as np
 
-from ide.building_blocks.data_pool import FlatDataPool
-from ide.building_blocks.data_sampler import KDTreeKNNDataSampler
+from ide.modules.data_pool import FlatDataPool
+from ide.modules.data_sampler import KDTreeKNNDataSampler
 
 def test_add_sample():
 

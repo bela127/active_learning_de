@@ -37,14 +37,14 @@ class Configurable(metaclass = ConfigurableMeta):
         return attr_result
 
 
-    def __new__(cls: Type[Self], *args, **kwargs) -> Self:
+    def __new__(cls: Type[Configurable], *args, **kwargs) -> Self:
         obj: Self = super(Configurable, cls).__new__(cls)
         obj.__cls = cls
         obj.__args = args
         obj.__kwargs = kwargs
         return obj
     
-    def __call__(self, *args, **kwargs) -> Self:
+    def __call__(self, **kwargs) -> Self:
         obj = self.__new__(self.__cls, *self.__args, **self.__kwargs)
         obj.__initialized = True
         self.__cls.__init__(obj, *self.__args, **self.__kwargs)

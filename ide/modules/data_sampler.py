@@ -4,46 +4,16 @@ from typing import TYPE_CHECKING
 from dataclasses import dataclass, field
 
 
-from rtree import index
-from rtree.index import RT_Memory
+from rtree import index #type: ignore
+from rtree.index import RT_Memory #type: ignore
 import numpy as np
-from sklearn.neighbors import NearestNeighbors
+from sklearn.neighbors import NearestNeighbors #type: ignore
 
-from ide.core.configuration import Configurable
-from ide.building_blocks.data_pool import DataPool
-from ide.core.query_pool import QueryPool
+from ide.core.data_sampler import DataSampler
+from ide.core.query.query_pool import QueryPool
 
 if TYPE_CHECKING:
     from typing import Tuple
-    from typing_extensions import Self
-    from nptyping import NDArray, Number, Shape
-
-@dataclass
-class DataSampler(Configurable):
-
-    sample_size: int
-    data_pool: DataPool = field(init=False)
-
-    #@abstractmethod
-    def sample(self, queries: NDArray[Number, Shape["query_nr, ... query_dim"]], size = None) -> Tuple[NDArray[Number, Shape["query_nr, sample_size, ... query_dim"]], NDArray[Number, Shape["query_nr, sample_size,... result_dim"]]]:
-        raise NotImplementedError()
-    
-    def update(self, data_points: Tuple[NDArray[Number, Shape["query_nr, ... query_dim"]], NDArray[Number, Shape["query_nr, ... result_dim"]]]):
-        raise NotImplementedError()
-
-
-    @property
-    def query_pool(self):
-        self.data_pool.query_pool
-
-    def __call__(self, data_pool, *args, **kwargs) -> Self:
-        obj = super().__call__(*args, **kwargs)
-
-        obj.data_pool = data_pool
-        data_pool.subscribe(obj)
-
-        return obj
-
 
 @dataclass
 class RTreeKNNDataSampler(DataSampler):
@@ -101,8 +71,9 @@ class RTreeKNNDataSampler(DataSampler):
 @dataclass
 class KDTreeKNNDataSampler(DataSampler):
 
-    def __init__(self, sample_size):
+    def __init__(self, sample_size, sample_size_data_fraction = 4):
         super().__init__(sample_size)
+        self.sample_size_data_fraction = sample_size_data_fraction
         self._knn = NearestNeighbors(n_neighbors=self.sample_size)
         
 
@@ -111,7 +82,7 @@ class KDTreeKNNDataSampler(DataSampler):
 
     def sample(self, queries, size = None):
         if size is None: size = self.sample_size
-        if self.data_pool.query_pool.query_count // 3 < size: size = self.data_pool.query_pool.query_count // 3
+        if self.data_pool.query_pool.query_count // self.sample_size_data_fraction < size: size = self.data_pool.query_pool.query_count // self.sample_size_data_fraction
 
         kneighbor_indexes = self._knn.kneighbors(queries, n_neighbors=size, return_distance=False)
 
