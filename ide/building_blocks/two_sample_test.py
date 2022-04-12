@@ -2,6 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from dataclasses import dataclass
+import numpy as np
 
 from scipy.stats import mannwhitneyu #type: ignore
 
@@ -24,7 +25,15 @@ class MWUTwoSampleTest(TwoSampleTest):
     
     def test(self, samples1, samples2):
 
+        #def step(i):
+        #    return mannwhitneyu(samples1[i], samples2[i])
+        
+        #idx = np.arange(len(samples1))
+        #results = np.array(list(map(step, idx)))
+
         U, p = mannwhitneyu(samples1, samples2, method="exact", axis=1)
+        #U = results[:,0,:]
+        #p = results[:,1,:]
         return U, p
 
         

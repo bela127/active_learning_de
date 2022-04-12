@@ -1,11 +1,11 @@
 import numpy as np
 
-from ide.modules.data_pool import FlatDataPool
+from ide.modules.queried_data_pool import FlatQueriedDataPool
 from ide.modules.data_sampler import KDTreeKNNDataSampler
 
 def test_add_sample():
 
-    dp = FlatDataPool((1,),(2,))
+    dp = FlatQueriedDataPool((1,),(2,))
     dp = dp()
 
     sampler = KDTreeKNNDataSampler(10, (2,))

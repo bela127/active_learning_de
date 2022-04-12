@@ -4,22 +4,23 @@ from typing import TYPE_CHECKING
 from random import choice
 
 import numpy as np
+from ide.core.data.data_pool import DataPool
 
-from ide.core.data_pool import DataPool
+from ide.core.data.queried_data_pool import QueriedDataPool
 from ide.core.query.query_pool import QueryPool
 
 if TYPE_CHECKING:
     from typing import Dict
 
-class FlatDataPool(DataPool):
+class FlatQueriedDataPool(QueriedDataPool):
     """
     implements a pool of already labeled data
     """
 
     iteration = 0
 
-    def __init__(self, query_shape, result_shape):
-        super().__init__(query_shape, result_shape)
+    def __init__(self):
+        super().__init__()
         self.query_index: Dict = {}
 
     
@@ -45,5 +46,12 @@ class FlatDataPool(DataPool):
             self.query_index[tuple(query)] = results + [result]
 
     @property
-    def query_pool(self) -> QueryPool:
-        return QueryPool(self.queries.size, self._oracle_query_pool.query_shape, self._oracle_query_pool.query_ranges)
+    def query_pool(self):
+        query_pool = QueryPool(query_count = self.queries.size, query_shape = self._oracle_query_pool.query_shape, query_ranges= None)
+        query_pool._queries = self.queries
+        query_pool._last_queries = self.last_queries
+        return query_pool
+
+    @property
+    def data_pool(self):
+        return DataPool(self.query_pool, self._oracle_data_pool.result_shape)

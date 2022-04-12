@@ -1,7 +1,11 @@
-from ide.experiments.de_blueprint import de_blueprint
-from ide.experiments.ide_blueprint import ide_blueprint
+#from ide.experiments.de_lin import blueprint
+#from ide.experiments.de_sqr import blueprint
+from ide.experiments.ide_lin import blueprint
+#from ide.experiments.ide_grid_blueprint import blueprint
+#from ide.experiments.optimal_query_lin import blueprint
+#from ide.experiments.optimal_query_sqr import blueprint
 
 from ide.core.experiment_runner import ExperimentRunner
 
-er = ExperimentRunner([ide_blueprint])
+er = ExperimentRunner([blueprint])
 er.run_experiments()

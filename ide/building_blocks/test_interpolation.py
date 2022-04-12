@@ -1,9 +1,11 @@
 from __future__ import annotations
+from abc import abstractproperty
 from typing import TYPE_CHECKING
 
 from dataclasses import dataclass
 
 import numpy as np
+from ide.core.data.data_pool import DataPool
 
 from ide.core.experiment_module import ExperimentModule
 from ide.core.queryable import Queryable
@@ -40,6 +42,7 @@ class KNNTestInterpolator(TestInterpolator):
         t,p = self.test.test(samples1, samples2)
 
         u = self.uncertainty((queries1, queries2), sample_queries1, sample_queries2)
+        #u = 0
 
         return t, p, u
     
@@ -54,7 +57,11 @@ class KNNTestInterpolator(TestInterpolator):
     def query_pool(self):
         return self.data_sampler.query_pool
 
+    @property
+    def data_pool(self) -> DataPool:
+        return DataPool(self.query_pool, result_shape=(3,))
+
     def __call__(self, exp_modules = None, **kwargs) -> Self:
         obj = super().__call__(exp_modules, **kwargs)
-        obj.data_sampler = obj.data_sampler(exp_modules.data_pool)
+        obj.data_sampler = obj.data_sampler(exp_modules)
         return obj

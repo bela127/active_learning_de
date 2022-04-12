@@ -30,7 +30,7 @@ class DependencyTest(ExperimentModule):
 
     def __call__(self, exp_modules = None, **kwargs) -> Self:
         obj = super().__call__(exp_modules, **kwargs)
-        obj.data_sampler = obj.data_sampler(exp_modules.data_pool)
+        obj.data_sampler = obj.data_sampler(exp_modules)
         obj.multi_sample_test = obj.multi_sample_test()
         obj.query_sampler = obj.query_sampler()
         return obj

@@ -1,11 +1,11 @@
 import numpy as np
 
-from ide.modules.data_pool import FlatDataPool
+from ide.modules.queried_data_pool import FlatQueriedDataPool
 from ide.core.data_subscriber import DataSubscriber
 
 
 def test_data_pool_add():
-    dp = FlatDataPool((1,),(2,))
+    dp = FlatQueriedDataPool((1,),(2,))
     dp = dp()
     assert dp.result_shape == (2,)
 
@@ -18,7 +18,7 @@ def test_data_pool_add():
 
 
 def test_data_pool_subscribe():
-    dp = FlatDataPool((1,),(2,))
+    dp = FlatQueriedDataPool((1,),(2,))
     dp = dp()
 
     queries = np.asarray(((1,),))

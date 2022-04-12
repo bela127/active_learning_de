@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 from dataclasses import dataclass
 
 import numpy as np
+from ide.core.data.data_pool import DataPool
 
 from ide.core.oracle.data_source import DataSource
 from ide.core.query.query_pool import QueryPool
@@ -35,6 +36,10 @@ class LineDataSource(DataSource):
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
         return QueryPool(query_count=None, query_shape=self.query_shape, query_ranges=query_ranges)
 
+    @property
+    def data_pool(self) -> DataPool:
+        return DataPool(self.query_pool, self.result_shape)
+
 
 @dataclass
 class SquareDataSource(DataSource):
@@ -43,7 +48,7 @@ class SquareDataSource(DataSource):
     result_shape: Tuple[int,...] = (1,)
     x0: float = 0.5
     y0: float = 0
-    s: float = 10
+    s: float = 5
 
 
     def query(self, queries):
@@ -56,6 +61,10 @@ class SquareDataSource(DataSource):
         x_max = 1
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
         return QueryPool(query_count=None, query_shape=self.query_shape, query_ranges=query_ranges)
+    
+    @property
+    def data_pool(self) -> DataPool:
+        return DataPool(self.query_pool, self.result_shape)
 
     
 @dataclass
@@ -71,3 +80,7 @@ class InterpolatingDataSource(DataSource):
     @property
     def query_pool(self) -> QueryPool:
         return self.interpolation_strategy.query_pool
+
+    @property
+    def data_pool(self) -> DataPool:
+        return DataPool(self.query_pool, self.result_shape)

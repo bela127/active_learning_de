@@ -3,10 +3,10 @@ import numpy as np
 from ide.building_blocks.test_interpolation import KNNTestInterpolator
 from ide.modules.data_sampler import KDTreeKNNDataSampler
 from ide.building_blocks.two_sample_test import MWUTwoSampleTest
-from ide.modules.data_pool import FlatDataPool
+from ide.modules.queried_data_pool import FlatQueriedDataPool
 
 def test_uncertainty():
-    dp = FlatDataPool((1,),(2,))
+    dp = FlatQueriedDataPool((1,),(2,))
     dp = dp()
 
     sampler = KDTreeKNNDataSampler(2)

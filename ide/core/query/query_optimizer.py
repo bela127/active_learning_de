@@ -38,3 +38,8 @@ class NoQueryOptimizer(QueryOptimizer):
         queries = self.query_sampler.sample(self.selection_criteria.query_pool, self.num_queries)
 
         return queries
+
+    def __call__(self, exp_modules: ExperimentModules = None, **kwargs) -> Self:
+        obj = super().__call__(exp_modules, **kwargs)
+        obj.query_sampler = obj.query_sampler()
+        return obj

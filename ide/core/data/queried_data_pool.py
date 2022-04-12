@@ -1,10 +1,9 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, NewType
+from typing import TYPE_CHECKING
 
 import numpy as np
 
 from ide.core.queryable import Queryable
-from ide.core.query.query_pool import QueryPool
 
 if TYPE_CHECKING:
     from typing_extensions import Self #type: ignore
@@ -13,18 +12,21 @@ if TYPE_CHECKING:
     from nptyping import  NDArray, Number, Shape
 
     from ide.core.data_subscriber import DataSubscriber
+    from ide.core.query.query_pool import QueryPool
+    from ide.core.data.data_pool import DataPool
 
-class DataPool(Queryable):
+
+class QueriedDataPool(Queryable):
     _oracle_query_pool: QueryPool
+    _oracle_data_pool: DataPool
 
-    def __init__(self, query_shape, result_shape):
-        self.query_shape: Tuple[int,...] = query_shape
-        self.result_shape: Tuple[int,...] = result_shape
-        
+    def __init__(self):
         self._subscriber: List[DataSubscriber] = []
 
         self.queries: NDArray[Number, Shape["query_nr, ... query_dim"]] = None
         self.results: NDArray[Number, Shape["query_nr, ... result_dim"]] = None
+
+        self.last_queries: NDArray[Number, Shape["query_nr, ... query_dim"]] = None
 
     def subscribe(self, subscriber):
         self._subscriber.append(subscriber)
@@ -39,11 +41,15 @@ class DataPool(Queryable):
         else:
             self.queries = np.concatenate((self.queries, queries))
             self.results = np.concatenate((self.results, results))
+        
+        self.last_queries = queries
 
         for subscriber in self._subscriber:
             subscriber.update(data_points)
         
-    def __call__(self, oracle_query_pool: QueryPool = None, **kwargs) -> Self:
+    def __call__(self, oracle_query_pool: QueryPool = None, oracle_data_pool: QueryPool = None, **kwargs) -> Self:
         obj = super().__call__( **kwargs)
-        obj._oracle_query_pool = oracle_query_pool #TODO need more infos like shape
+        obj._oracle_query_pool = oracle_query_pool
+        obj._oracle_data_pool = oracle_data_pool
         return obj
+    

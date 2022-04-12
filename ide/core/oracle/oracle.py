@@ -31,8 +31,12 @@ class Oracle(Queryable):
         return augmented_data_points
 
     @property
-    def query_pool(self) -> QueryPool:
+    def query_pool(self):
         return self.data_source.query_pool
+
+    @property
+    def data_pool(self):
+        return self.data_source.data_pool
 
     def __call__(self, *args, **kwargs) -> Self:
         obj = super().__call__(*args, **kwargs)

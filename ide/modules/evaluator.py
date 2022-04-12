@@ -54,8 +54,8 @@ class PlotNewDataPointsEvaluator(Evaluator):
     def register(self, experiment: Experiment):
         super().register(experiment)
 
-        self.experiment.data_pool.add = Evaluate(self.experiment.data_pool.add)
-        self.experiment.data_pool.add.pre(self.plot_new_data_points)
+        self.experiment.queried_data_pool.add = Evaluate(self.experiment.queried_data_pool.add)
+        self.experiment.queried_data_pool.add.pre(self.plot_new_data_points)
 
         self.queries: NDArray[Number, Shape["query_nr, ... query_dim"]] = None
         self.results: NDArray[Number, Shape["query_nr, ... result_dim"]] = None

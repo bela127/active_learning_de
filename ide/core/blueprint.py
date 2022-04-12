@@ -6,7 +6,7 @@ from dataclasses import dataclass
 if TYPE_CHECKING:
     from typing import Iterable, Optional
 
-    from ide.core.data_pool import DataPool
+    from ide.core.data.queried_data_pool import QueriedDataPool
     from ide.core.oracle.oracle import Oracle
     from ide.core.query.query_optimizer import QueryOptimizer
     from ide.core.query.query_sampler import QuerySampler
@@ -23,7 +23,7 @@ class Blueprint():
 
     oracle: Oracle
 
-    data_pool: DataPool
+    queried_data_pool: QueriedDataPool
 
     initial_query_sampler: QuerySampler
 

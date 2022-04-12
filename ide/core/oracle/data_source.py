@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 from dataclasses import dataclass, field
 
 from ide.core.queryable import Queryable
-from ide.core.query.query_pool import QueryPool
+
 
 if TYPE_CHECKING:
     from typing import Tuple, List
@@ -17,8 +17,4 @@ class DataSource(Queryable):
     result_shape: Tuple[int,...]
 
     def query(self, queries: NDArray[Number, Shape["query_nr, ... query_dim"]]) -> Tuple[NDArray[Number, Shape["query_nr, ... query_dim"]], NDArray[Number, Shape["query_nr, ... result_dim"]]]:
-        ...
-
-    @property
-    def query_pool(self) -> QueryPool:
-        ...
+        raise NotImplementedError

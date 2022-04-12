@@ -1,32 +1,48 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
+from math import ceil
+import random
 from dataclasses import dataclass
 
 import numpy as np
-from scipy.stats import qmc
+from scipy.stats import qmc # type: ignore
 
 from ide.core.query.query_sampler import QuerySampler
 
 if TYPE_CHECKING:
     from typing import Tuple, List, Union
+    from nptyping import NDArray, Number, Shape
 
 @dataclass
-class RandomQuerySampler(QuerySampler):
+class OptimalQuerySampler(QuerySampler):
+    optimal_queries: Tuple[NDArray[Number, Shape["query_nr, ... query_dims"]], ...] = None
 
     def sample(self, query_pool, num_queries = None):
         if num_queries is None: num_queries = self.num_queries
         
-        if query_pool.query_count:
-            count = query_pool.query_count
-            if count == 0:
-                return np.asarray([], dtype=np.int32)
-            return np.random.randint(low = 0, high = count, size=(num_queries,))
+        if query_pool.query_ranges is None:
+            raise ValueError("Not for discrete Pools")
         else:
-            a = query_pool.elements_from_norm_pos(np.random.uniform(size=(num_queries, *query_pool.query_shape)))
+            query_nr = self.optimal_queries[0].shape[0]
+            k = ceil(num_queries / query_nr) 
+            queries = random.choices(self.optimal_queries, k=k)
+            queries = np.concatenate(queries)
+            return queries[:num_queries]
+
+@dataclass
+class UniformQuerySampler(QuerySampler):
+
+    def sample(self, query_pool, num_queries = None):
+        if num_queries is None: num_queries = self.num_queries
+        
+        if query_pool.query_ranges is None:
+            raise ValueError("Not for discrete Pools")
+        else:
+            a = query_pool.queries_from_norm_pos(np.random.uniform(size=(num_queries, *query_pool.query_shape)))
             return a
 
-class LatinHypercubeSampler(QuerySampler):
+class LatinHypercubeQuerySampler(QuerySampler):
 
     def sample(self, query_pool, num_queries = None):
         if num_queries is None: num_queries = self.num_queries
@@ -37,16 +53,36 @@ class LatinHypercubeSampler(QuerySampler):
 
         sampler = qmc.LatinHypercube(d=dim)
         
-        if query_pool.query_count:
-            count = query_pool.query_count
-            if count == 0:
-                return np.asarray([], dtype=np.int32)
-            
-            return np.random.randint(low = 0, high = count, size=(num_queries,))
+        if query_pool.query_ranges is None:
+            raise ValueError("Not for discrete Pools")
         else:
             sample = sampler.random(n=num_queries)
             
             sample = np.reshape(sample, (num_queries, *query_pool.query_shape))
 
-            a = query_pool.elements_from_norm_pos(sample)
+            a = query_pool.queries_from_norm_pos(sample)
             return a
+
+class RandomChoiceQuerySampler(QuerySampler):
+
+    def sample(self, query_pool, num_queries = None):
+        if num_queries is None: num_queries = self.num_queries
+        
+        if query_pool.query_count is None:
+            raise ValueError("Not for continues pools")
+        else:
+            count = query_pool.query_count
+            if count == 0:
+                return np.asarray([], dtype=np.int32)
+            return query_pool.queries_from_index(np.random.randint(low = 0, high = count, size=(num_queries,)))
+@dataclass
+class LastQuerySampler(QuerySampler):
+    num_queries: int = None
+
+    def sample(self, query_pool, num_queries = None):
+        if num_queries is None: num_queries = self.num_queries
+        
+        if query_pool.query_count is None:
+            raise ValueError("Not for continues pools")
+        else:
+            return query_pool.last_queries()

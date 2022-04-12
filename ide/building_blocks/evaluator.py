@@ -45,13 +45,14 @@ class PlotQueriesEvaluator(Evaluator):
             self.queries = np.concatenate((self.queries, queries), axis=1)
 
 
-        heatmap, xedges, yedges = np.histogram2d(self.queries[0,:,0], self.queries[1,:,0], bins=7)
+        heatmap, xedges, yedges = np.histogram2d(self.queries[0,:,0], self.queries[1,:,0], bins=10)
         extent = [xedges[0], xedges[-1], yedges[0], yedges[-1]]
 
         
         fig = plot.figure(self.fig_name)
         plot.imshow(heatmap.T, extent=extent, origin='lower')
         plot.title(self.fig_name)
+        plot.colorbar()
         if self.interactive: plot.show()
         else:
             plot.savefig(f'{self.folder}/{self.fig_name}_{self.iteration:05d}.png')
@@ -84,6 +85,7 @@ class PlotScoresEvaluator(Evaluator):
         fig = plot.figure(self.fig_name)
         plot.scatter(test_queries[:,0,0], test_queries[:,1,0], c=test_scores)
         plot.title(self.fig_name)
+        plot.colorbar()
         if self.interactive: plot.show()
         else:
             plot.savefig(f'{self.folder}/{self.fig_name}_{self.iteration:05d}.png')
@@ -130,3 +132,56 @@ class PlotTestPEvaluator(Evaluator):
             plot.clf()
 
         self.iteration += 1
+
+
+@dataclass
+class BoxPlotTestPEvaluator(Evaluator):
+    interactive: bool = False
+    folder: str = "fig"
+    fig_name:str = "Boxplot p-value"
+
+    ps: List[float] = field(init=False, default_factory=list)
+    pss: List[float] = field(init=False, default_factory=list)
+    iteration: int = field(init = False, default = 0)
+
+    def register(self, experiment: Experiment):
+        super().register(experiment)
+
+        if isinstance(self.experiment.experiment_modules, DependencyExperiment):
+            self.experiment.experiment_modules.dependency_test.test = Evaluate(self.experiment.experiment_modules.dependency_test.test)
+            self.experiment.experiment_modules.dependency_test.test.post(self.save_test_result)
+        else:
+            raise ValueError
+
+        self.experiment.run = Evaluate(self.experiment.run)
+        self.experiment.run.post(self.plot_test_results)
+
+        self.ps = []
+    
+    def save_test_result(self, result):
+        t,p = result
+
+        self.ps.append(p[0])
+
+    def plot_test_results(self, _):
+
+        self.pss.append(self.ps)
+
+        data = np.asarray(self.pss)
+        positions = np.arange(data.shape[1]) + 1
+
+        fig = plot.figure(self.fig_name)
+
+        plot.boxplot(data, positions=positions, meanline=False, showmeans=False, showfliers=False)
+        means = np.mean(data, axis=0)
+        plot.plot(positions, means)
+        plot.xticks(np.arange(data.shape[1], step=10),np.arange(data.shape[1], step=10))
+        plot.title(self.fig_name)
+        if self.interactive: plot.show()
+        else:
+            plot.savefig(f'{self.folder}/{self.fig_name}_{self.iteration:05d}.png',dpi=500)
+            plot.clf()
+
+        self.iteration += 1
+
+

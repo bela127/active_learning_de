@@ -14,8 +14,8 @@ class Experiment():
 
         self.oracle = bp.oracle()
 
-        self.data_pool = bp.data_pool(self.oracle.query_pool)
-        self.experiment_modules = bp.experiment_modules(self.data_pool)
+        self.queried_data_pool = bp.queried_data_pool(self.oracle.query_pool, self.oracle.data_pool)
+        self.experiment_modules = bp.experiment_modules(self.queried_data_pool, self.oracle.data_pool)
 
         self.initial_query_sampler = bp.initial_query_sampler()
         self.query_optimizer = bp.query_optimizer(self.experiment_modules)
@@ -33,7 +33,7 @@ class Experiment():
 
     def loop(self, iteration: int, queries: NDArray[Number, Shape["query_nr, ... query_dims"]]) -> NDArray[Number, Shape["query_nr, ... query_dims"]]:
         data_points = self.oracle.query(queries)
-        self.data_pool.add(data_points)
+        self.queried_data_pool.add(data_points)
         queries = self.query_optimizer.select()
         return queries
             
