@@ -37,15 +37,15 @@ class PlotQueriesEvaluator(Evaluator):
     def plot_queries(self, queries):
 
         size = queries.shape[0] // 2
-        queries = np.reshape(queries, (2, size,-1))
+        queries = np.reshape(queries, (size, 2,-1))
 
         if self.queries is None:
             self.queries = queries
         else:
-            self.queries = np.concatenate((self.queries, queries), axis=1)
+            self.queries = np.concatenate((self.queries, queries), axis=0)
 
 
-        heatmap, xedges, yedges = np.histogram2d(self.queries[0,:,0], self.queries[1,:,0], bins=10)
+        heatmap, xedges, yedges = np.histogram2d(self.queries[:,0,0], self.queries[:,1,0], bins=10)
         extent = [xedges[0], xedges[-1], yedges[0], yedges[-1]]
 
         
@@ -80,10 +80,10 @@ class PlotScoresEvaluator(Evaluator):
 
         size = queries.shape[0] // 2
         test_queries = np.reshape(queries, (size,2,-1))
-        test_scores = scores[:size]
+        test_scores = np.reshape(scores, (size,2,-1))
 
         fig = plot.figure(self.fig_name)
-        plot.scatter(test_queries[:,0,0], test_queries[:,1,0], c=test_scores)
+        plot.scatter(test_queries[:,0,0], test_queries[:,1,0], c=test_scores[:,0,0])
         plot.title(self.fig_name)
         plot.colorbar()
         if self.interactive: plot.show()
@@ -185,3 +185,35 @@ class BoxPlotTestPEvaluator(Evaluator):
         self.iteration += 1
 
 
+@dataclass
+class LogPValueEvaluator(Evaluator):
+    interactive: bool = False
+    folder: str = "log"
+    file_name: str = "PValue"
+
+    ps: List[float] = field(init=False, default_factory=list)
+    iteration: int = field(init = False, default = 0)
+
+    def register(self, experiment: Experiment):
+        super().register(experiment)
+
+        if isinstance(self.experiment.experiment_modules, DependencyExperiment):
+            self.experiment.experiment_modules.dependency_test.test = Evaluate(self.experiment.experiment_modules.dependency_test.test)
+            self.experiment.experiment_modules.dependency_test.test.post(self.save_test_result)
+        else:
+            raise ValueError
+
+        self.experiment.run = Evaluate(self.experiment.run)
+        self.experiment.run.post(self.log_test_results)
+
+        self.ps = []
+    
+    def save_test_result(self, result):
+        t,p = result
+
+        self.ps.append(p[0])
+
+    def log_test_results(self, exp_nr):
+        np.save(f'{self.folder}/{self.file_name}_{exp_nr:05d}.npy', self.ps)
+
+        
