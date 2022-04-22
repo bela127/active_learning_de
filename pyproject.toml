@@ -26,6 +26,7 @@ nptyping = ">=2.0.0a1"
 scikit-learn = "^1.0.2"
 tensorflow = "^2.8.0"
 numpy = "^1.22.3"
+scipy = "1.8"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
