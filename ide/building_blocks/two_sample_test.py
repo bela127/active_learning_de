@@ -31,10 +31,14 @@ class MWUTwoSampleTest(TwoSampleTest):
         #idx = np.arange(len(samples1))
         #results = np.array(list(map(step, idx)))
 
-        U, p = mannwhitneyu(samples1, samples2, method="exact", axis=1)
+        U1, p = mannwhitneyu(samples1, samples2, method="exact", axis=1)
+        U2 = samples1.shape[1] * samples2.shape[1] - U1
+        U = np.min((U1,U2), axis=0)
+        r = 1 - (2*U)/(samples1.shape[1] * samples2.shape[1])
+
         #U = results[:,0,:]
         #p = results[:,1,:]
-        return U, p
+        return r, p
 
         
     
