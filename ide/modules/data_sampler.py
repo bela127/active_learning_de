@@ -47,7 +47,7 @@ class RTreeKNNDataSampler(DataSampler):
             self._points[oid] = query, result
             self._r_tree.insert(oid, index)
 
-    def sample(self, query, size = None):
+    def query(self, query, size = None):
         if size is None: size = self.sample_size
 
 
@@ -98,7 +98,7 @@ class KDTreeKNNDataSampler(DataSampler):
     def update(self, data_points):
         self._knn.fit(self.exp_modules.queried_data_pool.queries, self.exp_modules.queried_data_pool.results)
 
-    def sample(self, queries, size = None):
+    def query(self, queries, size = None):
         if size is None: size = self.sample_size
         if self.exp_modules.queried_data_pool.query_pool.query_count // self.sample_size_data_fraction < size: size = self.exp_modules.queried_data_pool.query_pool.query_count // self.sample_size_data_fraction
 
@@ -139,7 +139,7 @@ class KDTreeRegionDataSampler(DataSampler):
     def update(self, data_points):
         self._knn.fit(self.exp_modules.queried_data_pool.queries, self.exp_modules.queried_data_pool.results)
 
-    def sample(self, queries, size = None):
+    def query(self, queries, size = None):
 
         kneighbor_indexes = self._knn.radius_neighbors(queries, radius=self.region_size ,return_distance=False)
 

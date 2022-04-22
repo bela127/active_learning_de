@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from abc import abstractmethod
+from abc import abstractmethod, abstractproperty
 
 
 from ide.core.configuration import Configurable
@@ -21,12 +21,10 @@ class Queryable(Configurable):
         raise NotImplementedError
 
 
-    @property
-    @abstractmethod
+    @abstractproperty
     def query_pool(self) -> QueryPool:
         raise NotImplementedError
     
-    @property
-    @abstractmethod
+    @abstractproperty
     def data_pool(self) -> DataPool:
         raise NotImplementedError

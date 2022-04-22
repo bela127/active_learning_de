@@ -19,8 +19,8 @@ class PrintNewDataPointsEvaluator(Evaluator):
     def register(self, experiment: Experiment):
         super().register(experiment)
 
-        self.experiment.data_pool.add = Evaluate(self.experiment.data_pool.add)
-        self.experiment.data_pool.add.pre(self.log_new_data_points)
+        self.experiment.queried_data_pool.add = Evaluate(self.experiment.queried_data_pool.add)
+        self.experiment.queried_data_pool.add.pre(self.log_new_data_points)
 
     def log_new_data_points(self, data_points):
         print(data_points)
@@ -34,8 +34,8 @@ class LogNewDataPointsEvaluator(Evaluator):
     def register(self, experiment: Experiment):
         super().register(experiment)
 
-        self.experiment.data_pool.add = Evaluate(self.experiment.data_pool.add)
-        self.experiment.data_pool.add.pre(self.log_new_data_points)
+        self.experiment.queried_data_pool.add = Evaluate(self.experiment.queried_data_pool.add)
+        self.experiment.queried_data_pool.add.pre(self.log_new_data_points)
 
     def log_new_data_points(self, data_points):
         # self.logger(data_points)

@@ -18,10 +18,10 @@ if TYPE_CHECKING:
 class OptimalQuerySampler(QuerySampler):
     optimal_queries: Tuple[NDArray[Number, Shape["query_nr, ... query_dims"]], ...] = None
 
-    def sample(self, query_pool, num_queries = None):
+    def sample(self, num_queries = None):
         if num_queries is None: num_queries = self.num_queries
         
-        if query_pool.query_ranges is None:
+        if self.query_pool.query_ranges is None:
             raise ValueError("Not for discrete Pools")
         else:
             query_nr = self.optimal_queries[0].shape[0]
@@ -33,56 +33,56 @@ class OptimalQuerySampler(QuerySampler):
 @dataclass
 class UniformQuerySampler(QuerySampler):
 
-    def sample(self, query_pool, num_queries = None):
+    def sample(self, num_queries = None):
         if num_queries is None: num_queries = self.num_queries
         
-        if query_pool.query_ranges is None:
+        if self.query_pool.query_ranges is None:
             raise ValueError("Not for discrete Pools")
         else:
-            a = query_pool.queries_from_norm_pos(np.random.uniform(size=(num_queries, *query_pool.query_shape)))
+            a = self.query_pool.queries_from_norm_pos(np.random.uniform(size=(num_queries, *self.query_pool.query_shape)))
             return a
 
 class LatinHypercubeQuerySampler(QuerySampler):
 
-    def sample(self, query_pool, num_queries = None):
+    def sample(self, num_queries = None):
         if num_queries is None: num_queries = self.num_queries
 
         dim = 1
-        for size in query_pool.query_shape:
+        for size in self.query_pool.query_shape:
             dim *= size
 
         sampler = qmc.LatinHypercube(d=dim)
         
-        if query_pool.query_ranges is None:
+        if self.query_pool.query_ranges is None:
             raise ValueError("Not for discrete Pools")
         else:
             sample = sampler.random(n=num_queries)
             
-            sample = np.reshape(sample, (num_queries, *query_pool.query_shape))
+            sample = np.reshape(sample, (num_queries, *self.query_pool.query_shape))
 
-            a = query_pool.queries_from_norm_pos(sample)
+            a = self.query_pool.queries_from_norm_pos(sample)
             return a
 
 class RandomChoiceQuerySampler(QuerySampler):
 
-    def sample(self, query_pool, num_queries = None):
+    def sample(self, num_queries = None):
         if num_queries is None: num_queries = self.num_queries
         
-        if query_pool.query_count is None:
+        if self.query_pool.query_count is None:
             raise ValueError("Not for continues pools")
         else:
-            count = query_pool.query_count
+            count = self.query_pool.query_count
             if count == 0:
                 return np.asarray([], dtype=np.int32)
-            return query_pool.queries_from_index(np.random.randint(low = 0, high = count, size=(num_queries,)))
+            return self.query_pool.queries_from_index(np.random.randint(low = 0, high = count, size=(num_queries,)))
 @dataclass
 class LastQuerySampler(QuerySampler):
     num_queries: int = None
 
-    def sample(self, query_pool, num_queries = None):
+    def sample(self, num_queries = None):
         if num_queries is None: num_queries = self.num_queries
         
-        if query_pool.query_count is None:
+        if self.query_pool.query_count is None:
             raise ValueError("Not for continues pools")
         else:
-            return query_pool.last_queries()
+            return self.query_pool.last_queries()

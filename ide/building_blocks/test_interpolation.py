@@ -36,8 +36,8 @@ class KNNTestInterpolator(TestInterpolator):
         queries1 = queries[:,0,:]
         queries2 = queries[:,1,:]
 
-        sample_queries1, samples1 = self.data_sampler.sample(queries1)
-        sample_queries2, samples2 = self.data_sampler.sample(queries2)
+        sample_queries1, samples1 = self.data_sampler.query(queries1)
+        sample_queries2, samples2 = self.data_sampler.query(queries2)
 
         t,p = self.test.test(samples1, samples2)
 

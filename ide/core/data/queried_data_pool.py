@@ -51,5 +51,12 @@ class QueriedDataPool(Queryable):
         obj = super().__call__( **kwargs)
         obj._oracle_query_pool = oracle_query_pool
         obj._oracle_data_pool = oracle_data_pool
+
+        obj.queries = np.empty((0,*obj._oracle_query_pool.query_shape))
+        obj.results = np.empty((0,*obj._oracle_data_pool.result_shape))
+
+        obj.last_queries = np.empty((0,*obj._oracle_query_pool.query_shape))
+
+
         return obj
     
