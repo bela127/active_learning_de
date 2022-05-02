@@ -1,6 +1,8 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
+from multiprocessing import Pool
+
 from ide.core.evaluator import Evaluator
 
 from ide.core.experiment import Experiment
@@ -26,7 +28,8 @@ class ExperimentRunner():
             experiment = Experiment(blueprint, exp_nr)
 
             self.register_evaluators(experiment)
-
+            
+            print("Running:", experiment.exp_name, exp_nr)
             experiment.run()
         
 
@@ -35,6 +38,12 @@ class ExperimentRunner():
 
         for blueprint in blueprints:
             self.run_experiment(blueprint)
+
+    def run_experiments_parallel(self, blueprints: Union[List[Blueprint], None] = None):
+        if blueprints is None: blueprints = self.blueprints
+
+        with Pool(16) as p:
+            p.map(self.run_experiment, blueprints)
 
 
     def register_evaluators(self, experiment):

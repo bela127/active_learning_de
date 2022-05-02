@@ -37,7 +37,7 @@ class BayesianGPQueryOptimizer(QueryOptimizer):
 
         queries = np.asarray(list(self._last_queries.values()))[:,None]
 
-        return queries
+        return queries, scores #TODO Fix this, the scores are wrong currently
     
     def __call__(self, exp_modules: ExperimentModules = None, **kwargs) -> Self:
         obj = super().__call__(exp_modules, **kwargs)
@@ -68,12 +68,13 @@ class MaxMCQueryOptimizer(MCQueryOptimizer):
         if num_queries is None: num_queries = self.num_queries
 
         query_candidates = self.query_sampler.sample(self.num_tries)
-        scores = self.selection_criteria.query(query_candidates)
+        candidate_scores = self.selection_criteria.query(query_candidates)
 
-        ind = np.argpartition(scores, -num_queries)[-num_queries:]
+        ind = np.argpartition(candidate_scores, -num_queries)[-num_queries:]
         queries = query_candidates[ind]
+        scores = candidate_scores[ind]
 
-        return queries
+        return queries, scores
 
 @dataclass
 class ProbWeightedMCQueryOptimizer(MCQueryOptimizer):
@@ -89,9 +90,12 @@ class ProbWeightedMCQueryOptimizer(MCQueryOptimizer):
         scores_weight = np.exp(scores_zero)
         score_sum = np.sum(scores_weight)
         weight = scores_weight / score_sum
-        if np.count_nonzero(np.isnan(weight)) > 0:
-            queries = self._rng.choice(a=query_candidates, size=num_queries, replace=False)
-        else:
-            queries = self._rng.choice(a=query_candidates, size=num_queries, replace=False, p=weight)
 
-        return queries
+        indexes = np.arange(query_candidates.shape[0])
+
+        if np.count_nonzero(np.isnan(weight)) > 0:
+            idx = self._rng.choice(a=indexes, size=num_queries, replace=False)
+        else:
+            idx = self._rng.choice(a=indexes, size=num_queries, replace=False, p=weight)
+
+        return query_candidates[idx], scores[idx]

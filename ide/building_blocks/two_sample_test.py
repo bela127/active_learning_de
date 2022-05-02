@@ -5,6 +5,8 @@ from dataclasses import dataclass
 import numpy as np
 
 from scipy.stats import mannwhitneyu #type: ignore
+from scipy.stats import kruskal #type: ignore
+
 
 from ide.core.data_sampler import DataSampler
 from ide.core.configuration import Configurable
@@ -39,6 +41,23 @@ class MWUTwoSampleTest(TwoSampleTest):
         #U = results[:,0,:]
         #p = results[:,1,:]
         return r, p
+
+@dataclass
+class KWHTwoSampleTest(TwoSampleTest):
+    
+    def test(self, samples1, samples2):
+
+        #def step(i):
+        #    return mannwhitneyu(samples1[i], samples2[i])
+        
+        #idx = np.arange(len(samples1))
+        #results = np.array(list(map(step, idx)))
+
+        t, p = kruskal(samples1, samples2, axis=1)
+
+        #U = results[:,0,:]
+        #p = results[:,1,:]
+        return t, p
 
         
     

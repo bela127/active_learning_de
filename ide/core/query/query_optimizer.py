@@ -6,7 +6,8 @@ from dataclasses import dataclass
 from ide.core.experiment_module import ExperimentModule
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing_extensions import Self #type: ignore
+    from typing import Tuple
 
     from ide.core.query.selection_criteria import SelectionCriteria
     from ide.core.experiment_modules import ExperimentModules
@@ -19,7 +20,7 @@ class QueryOptimizer(ExperimentModule):
     selection_criteria: SelectionCriteria
     num_queries: int
 
-    def select(self, num_queries = None) -> NDArray[Number, Shape["query_nr, ... query_dims"]]:
+    def select(self, num_queries = None) -> Tuple[NDArray[Number, Shape["query_nr, ... query_dims"]], NDArray[Number, Shape["query_nr, query_score[1]"]]]:
         if num_queries is None: num_queries = self.num_queries
         raise NotImplementedError
 
@@ -37,7 +38,7 @@ class NoQueryOptimizer(QueryOptimizer):
 
         queries = self.query_sampler.sample(self.num_queries)
 
-        return queries
+        return queries, None
 
     def __call__(self, exp_modules: ExperimentModules = None, **kwargs) -> Self:
         obj = super().__call__(exp_modules, **kwargs)

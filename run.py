@@ -1,3 +1,5 @@
+experiment_folder = "./experiment_results/run11"
+
 import coloredlogs, logging
 logger = logging.getLogger(__name__)
 coloredlogs.install(level='DEBUG')
@@ -13,4 +15,7 @@ from IPython.core import ultratb
 sys.excepthook = ultratb.FormattedTB(mode='Verbose', color_scheme='Linux', call_pdb=False)
 
 
-import ide.run_experiments
+import ide.run_from_path as rfp
+
+experiment_folder = "./experiment_results/run_noise_de"
+rfp.run_experiments_from_folder(experiment_folder, parallel=True)

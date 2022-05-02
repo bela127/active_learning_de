@@ -3,21 +3,22 @@ from typing import TYPE_CHECKING
 
 from ide.building_blocks.experiment_modules import DependencyExperiment
 from dataclasses import dataclass, field
-from ide.core.evaluator import Evaluator, Evaluate
+from ide.core.evaluator import LogingEvaluator, Evaluate
 
 import numpy as np
 from matplotlib import pyplot as plot # type: ignore
+import os
 
 
 if TYPE_CHECKING:
-    from typing import List
+    from typing import List, Tuple
     from ide.core.experiment import Experiment
     from nptyping import  NDArray, Number, Shape
     from ide.building_blocks.dependency_test import DependencyTest
 
 
 @dataclass
-class PlotQueriesEvaluator(Evaluator):
+class PlotQueriesEvaluator(LogingEvaluator):
     interactive: bool = False
     folder: str = "fig"
     fig_name:str = "Query distribution 2d"
@@ -27,6 +28,7 @@ class PlotQueriesEvaluator(Evaluator):
 
     def register(self, experiment: Experiment):
         super().register(experiment)
+
 
         self.experiment.oracle.query = Evaluate(self.experiment.oracle.query)
         self.experiment.oracle.query.pre(self.plot_queries)
@@ -55,13 +57,13 @@ class PlotQueriesEvaluator(Evaluator):
         plot.colorbar()
         if self.interactive: plot.show()
         else:
-            plot.savefig(f'{self.folder}/{self.fig_name}_{self.iteration:05d}.png')
+            plot.savefig(f'{self.path}/{self.fig_name}_{self.iteration:05d}.png')
             plot.clf()
 
         self.iteration += 1
 
 @dataclass
-class PlotScoresEvaluator(Evaluator):
+class PlotScoresEvaluator(LogingEvaluator):
     interactive: bool = False
     folder: str = "fig"
     fig_name:str = "Scores 2d"
@@ -88,7 +90,7 @@ class PlotScoresEvaluator(Evaluator):
         plot.colorbar()
         if self.interactive: plot.show()
         else:
-            plot.savefig(f'{self.folder}/{self.fig_name}_{self.iteration:05d}.png')
+            plot.savefig(f'{self.path}/{self.fig_name}_{self.iteration:05d}.png')
             plot.clf()
 
         self.iteration += 1
@@ -98,7 +100,7 @@ class PlotScoresEvaluator(Evaluator):
 
 
 @dataclass
-class PlotTestPEvaluator(Evaluator):
+class PlotTestPEvaluator(LogingEvaluator):
     interactive: bool = False
     folder: str = "fig"
     fig_name:str = "P-value"
@@ -128,14 +130,14 @@ class PlotTestPEvaluator(Evaluator):
         plot.title(self.fig_name)
         if self.interactive: plot.show()
         else:
-            plot.savefig(f'{self.folder}/{self.fig_name}_{self.iteration:05d}.png')
+            plot.savefig(f'{self.path}/{self.fig_name}_{self.iteration:05d}.png')
             plot.clf()
 
         self.iteration += 1
 
 
 @dataclass
-class BoxPlotTestPEvaluator(Evaluator):
+class BoxPlotTestPEvaluator(LogingEvaluator):
     interactive: bool = False
     folder: str = "fig"
     fig_name:str = "Boxplot p-value"
@@ -179,20 +181,19 @@ class BoxPlotTestPEvaluator(Evaluator):
         plot.title(self.fig_name)
         if self.interactive: plot.show()
         else:
-            plot.savefig(f'{self.folder}/{self.fig_name}_{self.iteration:05d}.png',dpi=500)
+            plot.savefig(f'{self.path}/{self.fig_name}_{self.iteration:05d}.png',dpi=500)
             plot.clf()
 
         self.iteration += 1
 
 
 @dataclass
-class LogPValueEvaluator(Evaluator):
+class LogPValueEvaluator(LogingEvaluator):
     interactive: bool = False
     folder: str = "log"
     file_name: str = "PValue"
 
     ps: List[float] = field(init=False, default_factory=list)
-    iteration: int = field(init = False, default = 0)
 
     def register(self, experiment: Experiment):
         super().register(experiment)
@@ -208,12 +209,78 @@ class LogPValueEvaluator(Evaluator):
 
         self.ps = []
     
-    def save_test_result(self, result):
+    def save_test_result(self, result: NDArray):
         t,p = result
 
         self.ps.append(p[0])
 
     def log_test_results(self, exp_nr):
-        np.save(f'{self.folder}/{self.file_name}_{exp_nr:05d}.npy', self.ps)
+        np.save(f'{self.path}/{self.file_name}_{exp_nr:05d}.npy', self.ps)
 
+    
+@dataclass
+class LogScoresEvaluator(LogingEvaluator):
+    interactive: bool = False
+    folder: str = "log"
+    file_name: str = "PseudoQueryScore"
+
+    pqs: List[Tuple[NDArray, NDArray]] = field(init=False, default_factory=list)
+
+    def register(self, experiment: Experiment):
+        super().register(experiment)
         
+        self.experiment.query_optimizer.selection_criteria.query = Evaluate(self.experiment.query_optimizer.selection_criteria.query)
+        self.experiment.query_optimizer.selection_criteria.query.warp(self.log_scores)
+
+        self.experiment.run = Evaluate(self.experiment.run)
+        self.experiment.run.post(self.log_results)
+
+        self.pqs = []
+
+    def log_scores(self, func, queries: NDArray):
+        
+        scores = func(queries)
+
+        size = queries.shape[0] // 2
+        test_queries = np.reshape(queries, (size,2,-1))
+        test_scores = np.reshape(scores, (size,2,-1))
+
+        self.pqs.append((test_queries, test_scores))
+        
+        return scores
+
+    def log_results(self, exp_nr):
+        np.save(f'{self.path}/{self.file_name}_{exp_nr:05d}.npy', self.pqs)
+
+@dataclass
+class LogActualQueryScoresEvaluator(LogingEvaluator):
+    interactive: bool = False
+    folder: str = "log"
+    file_name:str = "ActualQueryScores"
+
+    acs: List[Tuple[NDArray, NDArray]] = field(init=False, default_factory=list)
+
+    def register(self, experiment: Experiment):
+        super().register(experiment)
+
+        self.experiment.query_optimizer.select = Evaluate(self.experiment.query_optimizer.select)
+        self.experiment.query_optimizer.select.post(self.log_queries)
+
+        self.experiment.run = Evaluate(self.experiment.run)
+        self.experiment.run.post(self.log_results)
+
+        self.acs = []
+
+    def log_queries(self, result):
+        queries: NDArray
+        scores: NDArray
+        queries, scores = result
+
+        size = queries.shape[0] // 2
+        queries = np.reshape(queries, (size, 2,-1))
+        scores = np.reshape(scores, (size, 2,-1))
+
+        self.acs.append((queries, scores))
+
+    def log_results(self, exp_nr):
+        np.save(f'{self.path}/{self.file_name}_{exp_nr:05d}.npy', self.acs)

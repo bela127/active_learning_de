@@ -11,6 +11,8 @@ class Experiment():
 
     def __init__(self, bp: Blueprint, exp_nr: int) -> None:
         self.exp_nr = exp_nr
+        self.exp_path = bp.exp_path
+        self.exp_name = bp.exp_name
 
         self.oracle = bp.oracle()
 
@@ -35,6 +37,6 @@ class Experiment():
     def loop(self, iteration: int, queries: NDArray[Number, Shape["query_nr, ... query_dims"]]) -> NDArray[Number, Shape["query_nr, ... query_dims"]]:
         data_points = self.oracle.query(queries)
         self.queried_data_pool.add(data_points)
-        queries = self.query_optimizer.select()
+        queries, scores = self.query_optimizer.select()
         return queries
             

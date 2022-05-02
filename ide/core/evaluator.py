@@ -1,5 +1,8 @@
 from __future__ import annotations
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
+
+import os
 
 if TYPE_CHECKING:
     from typing import Callable, Optional
@@ -14,6 +17,18 @@ class Evaluator(Configurable):
 
     def register(self, experiment: Experiment):
         self.experiment = experiment
+
+@dataclass
+class LogingEvaluator(Evaluator):
+    folder: str = "eval"
+    path: str = folder
+
+    def register(self, experiment: Experiment):
+        super().register(experiment)
+        if not self.experiment.exp_path is None:
+            self.path = os.path.join(self.experiment.exp_path, self.folder)
+            
+        os.makedirs(self.path, exist_ok=True)
 
 
 import functools

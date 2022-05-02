@@ -3,10 +3,10 @@ from matplotlib import pyplot as plot # type: ignore
 import numpy as np
 import os
 
-folder = "./experiment_results/run9"
-log_prefix = "log"
-algorithms = ["optimal", "de", "ide"]
-baseline = "de"
+folder = "./experiment_results/run_noise_de"
+log_prefix = "log_de"
+algorithms = ["noise_0", "noise_1", "noise_2", "noise_3", "noise_4", "noise_5"]
+baseline = "noise_5"
 ignore_nans_count = -1
 
 def walk_algorithms():
@@ -68,6 +68,61 @@ def plot_p_value(fig_name = "p-value"):
         x = np.asarray([i for i in range(y.shape[0])])
         plot.ylim(0,1)
         plot.plot(x, y, alpha=1, label=f'{key}_mean')
+
+    for key in algorithm_data.keys():
+        y = algorithm_medians[key]
+        x = np.asarray([i for i in range(y.shape[0])])
+        plot.ylim(0,1)
+        plot.plot(x, y, alpha=1, label=f'{key}_median')
+
+    plot.title(fig_name)
+    plot.xlabel("learning iteration")
+    plot.ylabel("p-value")
+    plot.figlegend()
+    
+    plot.savefig(f'{folder}/{fig_name}.png',dpi=500)
+    plot.clf()
+
+def plot_p_value_var(fig_name = "p-value-var"):
+
+    for key in algorithm_data.keys():
+        y = algorithm_means[key]
+        x = np.asarray([i for i in range(y.shape[0])])
+        y_err = algorithm_vars[key]
+        plot.ylim(0,1)
+        plot.errorbar(x, y, y_err, alpha=0.5, fmt=' ', label=f'{key}_var')
+    
+    for key in algorithm_data.keys():
+        y = algorithm_means[key]
+        x = np.asarray([i for i in range(y.shape[0])])
+        plot.ylim(0,1)
+        plot.plot(x, y, alpha=1, label=f'{key}_mean')
+
+    plot.title(fig_name)
+    plot.xlabel("learning iteration")
+    plot.ylabel("p-value")
+    plot.figlegend()
+    
+    plot.savefig(f'{folder}/{fig_name}.png',dpi=500)
+    plot.clf()
+
+def plot_p_value_mean(fig_name = "p-value-mean"):
+    
+    for key in algorithm_data.keys():
+        y = algorithm_means[key]
+        x = np.asarray([i for i in range(y.shape[0])])
+        plot.ylim(0,1)
+        plot.plot(x, y, alpha=1, label=f'{key}_mean')
+
+    plot.title(fig_name)
+    plot.xlabel("learning iteration")
+    plot.ylabel("p-value")
+    plot.figlegend()
+    
+    plot.savefig(f'{folder}/{fig_name}.png',dpi=500)
+    plot.clf()
+
+def plot_p_value_median(fig_name = "p-value-median"):
 
     for key in algorithm_data.keys():
         y = algorithm_medians[key]
@@ -188,6 +243,9 @@ calculate_median()
 calculate_vars()
 
 plot_p_value()
+plot_p_value_var()
+plot_p_value_mean()
+plot_p_value_median()
 
 calculate_p_mean_gain()
 calculate_p_median_gain()

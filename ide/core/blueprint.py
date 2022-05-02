@@ -34,3 +34,5 @@ class Blueprint():
     evaluators: Iterable[Evaluator]
 
     exp_name: Optional[str]= None
+
+    exp_path: Optional[str]= None
