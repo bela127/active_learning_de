@@ -26,7 +26,7 @@ class LineDataSource(DataSource):
 
 
     def query(self, queries):
-        results = queries*np.ones(self.result_shape)*self.a + np.ones(self.result_shape)*self.b
+        results = np.dot(queries, np.ones((*self.query_shape,*self.result_shape))*self.a) + np.ones(self.result_shape)*self.b
         return queries, results
 
     @property
@@ -50,9 +50,8 @@ class SquareDataSource(DataSource):
     y0: float = 0
     s: float = 5
 
-
     def query(self, queries):
-        results = (queries - self.x0)**2*np.ones(self.result_shape)*self.s + np.ones(self.result_shape)*self.y0
+        results = np.dot((queries - self.x0)**2, np.ones((*self.query_shape,*self.result_shape))*self.s) + np.ones(self.result_shape)*self.y0
         return queries, results
 
     @property
