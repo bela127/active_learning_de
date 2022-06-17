@@ -1,6 +1,6 @@
 from __future__ import annotations
 from types import ModuleType
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 import sys
 import os
@@ -30,13 +30,22 @@ def load_module(dirpath: str, file_name: str):
         return module
 
 def set_exp_path_and_name(module: ModuleType, exp_path: str):
-    blueprint: Blueprint = module.blueprint
-    blueprint.exp_path = exp_path
-    blueprint.exp_name = module.__name__
-    return blueprint
+    try:
+        blueprint: Blueprint = module.blueprint
+        blueprint.exp_path = exp_path
+        blueprint.exp_name = module.__name__
+        return [blueprint]
+    except AttributeError:
+        blueprints: List[Blueprint] = module.blueprints
+        for blueprint in blueprints:
+            blueprint.exp_path = exp_path
+            blueprint.exp_name = module.__name__ + str(blueprint.exp_name)
+        return blueprints
+    
 
 def run_experiments_from_folder(experiment_path, parallel = False):
-    blueprints = [set_exp_path_and_name(module, experiment_path)  for module in load_modules_from_folder(experiment_path)]
+    blueprints = []
+    (blueprints.extend(set_exp_path_and_name(module, experiment_path))  for module in load_modules_from_folder(experiment_path))
     er = ExperimentRunner(blueprints)
     if parallel:
         er.run_experiments_parallel()
