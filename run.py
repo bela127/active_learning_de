@@ -18,4 +18,6 @@ sys.excepthook = ultratb.FormattedTB(mode='Verbose', color_scheme='Linux', call_
 import ide.run_from_path as rfp
 
 experiment_folder = "./experiment_results/run_dim_3_sqr"
-rfp.run_experiments_from_folder(experiment_folder, parallel=True)
+
+if __name__ == '__main__': 
+    rfp.run_experiments_from_folder(experiment_folder, parallel=True)
