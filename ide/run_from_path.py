@@ -36,6 +36,7 @@ def set_exp_path_and_name(module: ModuleType, exp_path: str):
         blueprint.exp_name = module.__name__
         return [blueprint]
     except AttributeError:
+        print("loaded file not a blueprint, test for multiple blueprints")
         blueprints: List[Blueprint] = module.blueprints
         for blueprint in blueprints:
             blueprint.exp_path = exp_path
@@ -45,7 +46,8 @@ def set_exp_path_and_name(module: ModuleType, exp_path: str):
 
 def run_experiments_from_folder(experiment_path, parallel = False):
     blueprints = []
-    (blueprints.extend(set_exp_path_and_name(module, experiment_path))  for module in load_modules_from_folder(experiment_path))
+    for module in load_modules_from_folder(experiment_path):
+        blueprints.extend(set_exp_path_and_name(module, experiment_path))
     er = ExperimentRunner(blueprints)
     if parallel:
         er.run_experiments_parallel()
